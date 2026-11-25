@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-  <title>樂活吞嚥訓練・老友復康版</title>
+  <title>循道吞嚥訓練・院舍版</title>
   <style>
     /* =====================================================================
      * 1. DESIGN TOKENS & APPLE HIG MINIMALIST FOUNDATION (Zero Dependencies)
@@ -831,7 +831,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <button id="brandTriggerBtn" class="brand-btn"
-              aria-label="樂活吞嚥訓練・老友復康版，點擊返回主頁"
+              aria-label="循道吞嚥訓練・院舍版，點擊返回主頁"
               onclick="handleBrandClick(event)">
         <div class="brand-icon-wrap" aria-hidden="true">
           <div class="brand-icon">🫧</div>
@@ -843,7 +843,7 @@
           </svg>
         </div>
         <div>
-          <div class="brand-title">樂活吞嚥訓練・老友復康版</div>
+          <div class="brand-title">循道吞嚥訓練・院舍版</div>
           <div class="brand-sub tech-only">遊戲化口肌復康 · 聲學量化評估 · 100% 本機處理</div>
         </div>
       </button>
@@ -1046,7 +1046,7 @@
 
       <!-- Home Footer with Always-Accessible Medical Disclaimer & Privacy Policy Button -->
       <footer class="home-footer">
-        <span>🔒 100% 本機處理與儲存 · 咪高峰錄音絕不上傳雲端</span>
+        <span>循道吞嚥訓練・院舍版 · 🔒 100% 本機處理與儲存 · 咪高峰錄音絕不上傳雲端</span>
         <button class="pill-btn"
                 onclick="openDisclaimerModal(this, true)"
                 aria-label="閱讀醫療免責聲明與本機私隱政策">
@@ -1399,7 +1399,7 @@
         <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:0.75rem; margin-bottom:1rem;">
           <div>
             <span class="badge badge-teal" style="margin-bottom:0.35rem;">科研級聲學量化評估 · 零造假數據保證</span>
-            <h1 id="reportHeading" tabindex="-1" class="section-title">治療師覆診聲學報告</h1>
+            <h1 id="reportHeading" tabindex="-1" class="section-title">循道吞嚥訓練・院舍版｜治療師覆診聲學報告</h1>
             <p class="subtitle">只記錄真實量度之聲學數據（未量度項目清楚標示「是次未量度」）。全數儲存於本機 IndexedDB。</p>
           </div>
           <div class="no-print" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
@@ -3750,7 +3750,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `樂活吞嚥聲學報告_${new Date().toISOString().slice(0, 10)}.csv`;
+      a.download = `循道吞嚥聲學報告_${new Date().toISOString().slice(0, 10)}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
