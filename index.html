@@ -1,0 +1,3776 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>樂活吞嚥訓練・老友復康版</title>
+  <style>
+    /* =====================================================================
+     * 1. DESIGN TOKENS & APPLE HIG MINIMALIST FOUNDATION (Zero Dependencies)
+     * ===================================================================== */
+    :root {
+      --bg: #F6F7F9;
+      --bg-accent: #EAF4F3;
+      --surface: rgba(255, 255, 255, 0.9);
+      --surface-solid: #FFFFFF;
+      --border: rgba(15, 23, 42, 0.1);
+      --text: #0F172A;
+      --text-secondary: #334155;
+      --text-muted: #64748B;
+      --teal: #0D9488;
+      --teal-dark: #0F766E;
+      --teal-soft: #CCFBF1;
+      --teal-tint: #F0FDFA;
+      --coral: #F97316;
+      --coral-dark: #C2410C;
+      --coral-soft: #FFEDD5;
+      --emerald: #059669;
+      --emerald-soft: #D1FAE5;
+      --rose: #E11D48;
+      --rose-soft: #FFE4E6;
+      --amber: #B45309;
+      --amber-soft: #FEF3C7;
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-pill: 9999px;
+      --shadow-card: 0 10px 30px -10px rgba(15, 23, 42, 0.08), 0 4px 12px -4px rgba(15, 23, 42, 0.04);
+      --shadow-btn: 0 4px 14px -2px rgba(13, 148, 136, 0.28);
+      --btn-min-h: 54px;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+    /* Persisted Large Font Mode (>= 18px base) */
+    html.large-font {
+      font-size: 19px;
+      --btn-min-h: 64px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", "Noto Sans TC", "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(circle at 90% 0%, var(--bg-accent) 0%, var(--bg) 52%, #F8FAFC 100%);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.55;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* High-visibility focus ring for Keyboard & VoiceOver users */
+    :focus-visible {
+      outline: 3px solid var(--coral);
+      outline-offset: 3px;
+    }
+    h1:focus, h2:focus, h3:focus {
+      outline: none;
+    }
+
+    /* Screen-reader-only helper */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* Simplified Mode hides non-essential technical elements */
+    body.simplified-mode .tech-only {
+      display: none !important;
+    }
+    body.simplified-mode .main-container {
+      max-width: 720px;
+    }
+    body.simplified-mode .card {
+      padding: 1.75rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =====================================================================
+     * 2. TOP BAR & 5-SECOND LONG-PRESS DEBUG TRIGGER
+     * ===================================================================== */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      padding: 0.7rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+    }
+
+    .brand-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      padding: 0.15rem;
+      border-radius: 14px;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .brand-icon-wrap {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 10px rgba(13, 148, 136, 0.25);
+    }
+
+    /* Subtle hold progress ring for 5-second developer debug unlock */
+    .brand-hold-ring {
+      position: absolute;
+      inset: -4px;
+      width: 52px;
+      height: 52px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+    .brand-hold-ring.visible {
+      opacity: 1;
+    }
+
+    .brand-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .topbar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .pill-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border);
+      background: #fff;
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      min-height: 40px;
+      white-space: nowrap;
+    }
+    .pill-btn:hover {
+      background: #F1F5F9;
+      color: var(--text);
+    }
+    .pill-btn.active {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+      box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
+    }
+    .pill-btn.coral-active {
+      background: var(--coral);
+      color: #fff;
+      border-color: var(--coral);
+    }
+
+    /* Hidden Developer Debug Bar (Revealed only after 5s long-press on brand icon) */
+    .debug-bar {
+      background: #0F172A;
+      color: #F8FAFC;
+      border-bottom: 1px solid #334155;
+      padding: 0.5rem 1rem;
+    }
+    .debug-bar-inner {
+      max-width: 1020px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+    }
+    .debug-btn {
+      padding: 0.35rem 0.75rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid #475569;
+      background: #1E293B;
+      color: #F8FAFC;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      min-height: 34px;
+    }
+    .debug-btn.active {
+      background: #F97316;
+      border-color: #EA580C;
+      color: #fff;
+    }
+
+    /* =====================================================================
+     * 3. MAIN CONTAINER, CARDS, BUTTONS & BADGES
+     * ===================================================================== */
+    .main-container {
+      width: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 7.8rem;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.92);
+      box-shadow: var(--shadow-card);
+      border-radius: var(--radius-xl);
+      padding: 1.4rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .section-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--text);
+    }
+    .subtitle {
+      font-size: 0.98rem;
+      color: var(--text-secondary);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    .badge-teal { background: var(--teal-soft); color: var(--teal-dark); }
+    .badge-coral { background: var(--coral-soft); color: var(--coral-dark); }
+    .badge-emerald { background: var(--emerald-soft); color: #065F46; }
+    .badge-amber { background: var(--amber-soft); color: #92400E; }
+    .badge-rose { background: var(--rose-soft); color: #9F1239; }
+    .badge-slate { background: #E2E8F0; color: #334155; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      min-height: var(--btn-min-h);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-lg);
+      font-size: 1.05rem;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.18s ease;
+      text-align: center;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+    .btn-full { width: 100%; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+      color: #fff;
+      box-shadow: var(--shadow-btn);
+    }
+    .btn-coral {
+      background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+      color: #fff;
+      box-shadow: 0 4px 14px -2px rgba(249, 115, 22, 0.32);
+    }
+    .btn-secondary {
+      background: #FFFFFF;
+      color: var(--text);
+      border: 2px solid #CBD5E1;
+    }
+    .btn-danger {
+      background: var(--rose);
+      color: #fff;
+    }
+    .btn-choice {
+      width: 100%;
+      justify-content: space-between;
+      text-align: left;
+      background: #fff;
+      border: 2px solid #CBD5E1;
+      color: var(--text);
+      padding: 1rem 1.2rem;
+    }
+    .btn-choice:hover {
+      border-color: var(--teal);
+      background: var(--teal-tint);
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.85rem;
+    }
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    @media (max-width: 680px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card { padding: 1.15rem; }
+    }
+
+    /* =====================================================================
+     * 4. RESUME BANNER, VOICE BOX & AUXILIARY VOICE PILL
+     * ===================================================================== */
+    .resume-card {
+      background: linear-gradient(135deg, #FFF7ED 0%, #FFFFFF 100%);
+      border: 2px solid #FB923C;
+    }
+
+    .ai-subtitle-box {
+      background: var(--teal-tint);
+      border: 1.5px solid #99F6E4;
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.1rem;
+    }
+    .ai-subtitle-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+    }
+    .ai-subtitle-text {
+      font-size: 1.12rem;
+      font-weight: 600;
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .aux-voice-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 0.85rem;
+    }
+    .aux-voice-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-pill);
+      border: 1.5px dashed #94A3B8;
+      background: rgba(255, 255, 255, 0.8);
+      color: var(--text-secondary);
+      font-size: 0.84rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .aux-voice-pill.listening {
+      border-style: solid;
+      border-color: var(--coral);
+      color: var(--coral-dark);
+      background: var(--coral-soft);
+    }
+
+    /* Home Footer Privacy Bar */
+    .home-footer {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.65rem;
+      padding: 0.85rem 1.1rem;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* =====================================================================
+     * 5. STEPPER & 3-5s LOOPING CLINICAL SVG ANIMATIONS
+     * ===================================================================== */
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .stepper-item {
+      padding: 0.45rem 0.35rem;
+      border-radius: 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: #E2E8F0;
+      color: #475569;
+    }
+    .stepper-item.done { background: var(--emerald-soft); color: #065F46; }
+    .stepper-item.active { background: var(--teal); color: #fff; }
+
+    .demo-stage {
+      background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+      border: 1.5px solid #CBD5E1;
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 215px;
+      margin-bottom: 1rem;
+    }
+    .demo-caption {
+      margin-top: 0.5rem;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--teal-dark);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 0.25rem 0.8rem;
+      border-radius: var(--radius-pill);
+    }
+
+    @keyframes lungExpand { 0%, 100% { transform: scale(0.86); opacity: 0.75; } 45% { transform: scale(1.12); opacity: 1; } }
+    .anim-lung { transform-origin: 100px 85px; animation: lungExpand 4.4s ease-in-out infinite; }
+
+    @keyframes shoulderShrug { 0%, 100% { transform: translateY(0px); } 45% { transform: translateY(-18px); } }
+    .anim-shoulders { animation: shoulderShrug 3.8s ease-in-out infinite; }
+
+    @keyframes neckTilt { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(-16deg); } 75% { transform: rotate(16deg); } }
+    .anim-neck-head { transform-origin: 100px 108px; animation: neckTilt 4.2s ease-in-out infinite; }
+
+    @keyframes lipMorph { 0%, 100% { transform: scaleX(0.45) scaleY(1.25); } 50% { transform: scaleX(1.35) scaleY(0.65); } }
+    .anim-lips { transform-origin: 100px 92px; animation: lipMorph 3.6s ease-in-out infinite; }
+
+    @keyframes tongueMove {
+      0%, 100% { transform: translate(0, 0) scaleY(0.7); }
+      25% { transform: translate(0, 14px) scaleY(1.2); }
+      50% { transform: translate(-14px, 6px) scaleY(1.0); }
+      75% { transform: translate(14px, 6px) scaleY(1.0); }
+    }
+    .anim-tongue { transform-origin: 100px 88px; animation: tongueMove 4.2s ease-in-out infinite; }
+
+    @keyframes bolusDrop {
+      0% { transform: translateY(0px) scale(1); opacity: 0; }
+      15% { transform: translateY(4px) scale(1.08); opacity: 1; }
+      75% { transform: translateY(68px) scale(0.95); opacity: 1; }
+      100% { transform: translateY(82px) scale(0.6); opacity: 0; }
+    }
+    .anim-bolus { animation: bolusDrop 3.6s ease-in-out infinite; }
+
+    @keyframes pitchClimb {
+      0% { transform: translate(0px, 40px); opacity: 0.2; }
+      20% { opacity: 1; }
+      85% { transform: translate(115px, -36px); opacity: 1; }
+      100% { transform: translate(125px, -42px); opacity: 0; }
+    }
+    .anim-pitch-dot { animation: pitchClimb 3.8s ease-in-out infinite; }
+
+    @keyframes chinTuck {
+      0%, 100% { transform: rotate(0deg) translateY(0px); }
+      50% { transform: rotate(15deg) translateY(8px); }
+    }
+    .anim-chin { transform-origin: 100px 95px; animation: chinTuck 3.8s ease-in-out infinite; }
+
+    @keyframes coughBurst {
+      0% { transform: translateX(0) scale(0.5); opacity: 0; }
+      20% { opacity: 1; }
+      85% { transform: translateX(52px) scale(1.25); opacity: 0.9; }
+      100% { transform: translateX(68px) scale(1.4); opacity: 0; }
+    }
+    .anim-cough-ring { transform-origin: 95px 80px; animation: coughBurst 3.0s ease-out infinite; }
+
+    @keyframes massageOrbit {
+      0% { transform: translate(0, -8px); }
+      25% { transform: translate(8px, 0); }
+      50% { transform: translate(0, 8px); }
+      75% { transform: translate(-8px, 0); }
+      100% { transform: translate(0, -8px); }
+    }
+    .anim-massage-l { animation: massageOrbit 3.2s linear infinite; }
+    .anim-massage-r { animation: massageOrbit 3.2s linear infinite reverse; }
+
+    .timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      margin: 0.75rem 0;
+    }
+    .ring-wrap {
+      position: relative;
+      width: 136px;
+      height: 136px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ring-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .ring-val {
+      font-size: 2rem;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .ring-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    /* =====================================================================
+     * 6. GAMIFIED MODULES (BALLOON & CANDLE + ACOUSTIC TELEMETRY)
+     * ===================================================================== */
+    .game-arena {
+      background: linear-gradient(180deg, #0F172A 0%, #1E293B 100%);
+      color: #fff;
+      border-radius: var(--radius-lg);
+      padding: 1.15rem;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+    .game-arena-light {
+      background: linear-gradient(180deg, #F0FDFA 0%, #FFF7ED 100%);
+      color: var(--text);
+      border: 1.5px solid #99F6E4;
+    }
+
+    .canvas-box {
+      width: 100%;
+      height: 240px;
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .canvas-box canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .meter-bar-bg {
+      width: 100%;
+      height: 18px;
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      position: relative;
+      margin: 0.5rem 0;
+    }
+    .meter-bar-bg.light { background: #E2E8F0; }
+    .meter-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #14B8A6, #34D399, #F97316);
+      border-radius: var(--radius-pill);
+      transition: width 0.08s linear;
+    }
+    .meter-threshold-line {
+      position: absolute;
+      top: 0; bottom: 0; left: 55%;
+      width: 2.5px;
+      background: #FACC15;
+      z-index: 2;
+    }
+
+    .telemetry-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+    @media (max-width: 560px) {
+      .telemetry-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .telemetry-cell {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 12px;
+      padding: 0.55rem;
+      text-align: center;
+    }
+    .telemetry-label { font-size: 0.74rem; color: #CBD5E1; }
+    .telemetry-value { font-size: 1.05rem; font-weight: 800; color: #5EEAD4; font-variant-numeric: tabular-nums; }
+
+    /* =====================================================================
+     * 7. THERAPIST REPORT DASHBOARD
+     * ===================================================================== */
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1.5px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      padding: 0.9rem;
+      text-align: center;
+    }
+    .kpi-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
+    .kpi-val { font-size: 1.38rem; font-weight: 800; color: var(--text); margin: 0.25rem 0; font-variant-numeric: tabular-nums; }
+    .kpi-bench { font-size: 0.76rem; font-weight: 700; }
+
+    .chart-card {
+      background: #fff;
+      border: 1.5px solid #E2E8F0;
+      border-radius: var(--radius-lg);
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    .chart-svg { width: 100%; height: auto; display: block; }
+
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1.5px solid #E2E8F0;
+      border-radius: var(--radius-md);
+      background: #fff;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.86rem; min-width: 600px; }
+    th, td { padding: 0.65rem 0.75rem; text-align: left; border-bottom: 1px solid #F1F5F9; }
+    th { background: #F8FAFC; color: var(--text-secondary); font-weight: 700; }
+
+    /* =====================================================================
+     * 8. BOTTOM DOCK, TOAST & ACCESSIBLE MODALS
+     * ===================================================================== */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 40;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border-top: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.06);
+    }
+    .bottom-dock-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.5rem;
+    }
+    .dock-btn {
+      min-height: 52px;
+      border-radius: 14px;
+      border: 1.5px solid #CBD5E1;
+      background: #F8FAFC;
+      color: var(--text);
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.15rem;
+      cursor: pointer;
+    }
+    .dock-btn.emergency {
+      background: var(--coral);
+      border-color: var(--coral-dark);
+      color: #fff;
+    }
+
+    .toast {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-10px);
+      background: rgba(15, 23, 42, 0.95);
+      color: #fff;
+      padding: 0.7rem 1.25rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.92rem;
+      font-weight: 600;
+      z-index: 80;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.22s ease;
+      max-width: 92vw;
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 90;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      overflow-y: auto;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: var(--radius-xl);
+      max-width: 520px;
+      width: 100%;
+      padding: 1.6rem;
+      box-shadow: 0 24px 60px rgba(15, 23, 42, 0.3);
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .privacy-highlight {
+      background: var(--teal-tint);
+      border: 2px solid #5EEAD4;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin: 1rem 0 1.25rem;
+      color: var(--teal-dark);
+      font-weight: 600;
+    }
+    .json-pre {
+      background: #0F172A;
+      color: #5EEAD4;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      overflow-x: auto;
+      max-height: 55vh;
+      line-height: 1.45;
+      margin: 0.75rem 0 1rem;
+    }
+
+    @media print {
+      body { background: #fff !important; }
+      .topbar, .debug-bar, .bottom-dock, .no-print, .toast { display: none !important; }
+      .main-container { padding: 0 !important; max-width: 100% !important; }
+      .card, .chart-card, .kpi-card { box-shadow: none !important; border: 1px solid #CBD5E1 !important; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ARIA Live Regions for VoiceOver / Screen Readers -->
+  <div id="ariaPolite" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+  <div id="ariaAssertive" class="sr-only" aria-live="assertive" aria-atomic="true"></div>
+
+  <!-- =================================================================== -->
+  <!-- TOP NAVIGATION BAR (With 5-Second Long-Press Debug Unlock on Logo)  -->
+  <!-- =================================================================== -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <button id="brandTriggerBtn" class="brand-btn"
+              aria-label="樂活吞嚥訓練・老友復康版，點擊返回主頁"
+              onclick="handleBrandClick(event)">
+        <div class="brand-icon-wrap" aria-hidden="true">
+          <div class="brand-icon">🫧</div>
+          <svg id="brandHoldRing" class="brand-hold-ring" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="23" fill="none" stroke="rgba(249,115,22,0.22)" stroke-width="3.5"></circle>
+            <circle id="brandHoldCircle" cx="26" cy="26" r="23" fill="none" stroke="#F97316" stroke-width="3.5"
+                    stroke-linecap="round" stroke-dasharray="144.5" stroke-dashoffset="144.5"
+                    transform="rotate(-90 26 26)"></circle>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">樂活吞嚥訓練・老友復康版</div>
+          <div class="brand-sub tech-only">遊戲化口肌復康 · 聲學量化評估 · 100% 本機處理</div>
+        </div>
+      </button>
+
+      <div class="topbar-controls">
+        <button id="btnLargeFont" class="pill-btn"
+                onclick="toggleLargeFont()"
+                aria-pressed="false"
+                aria-label="切換一鍵大字模式">
+          A+ 大字模式
+        </button>
+
+        <button id="btnSimplified" class="pill-btn"
+                onclick="toggleSimplifiedMode()"
+                aria-pressed="false"
+                aria-label="切換簡化模式，每頁只顯示單一動作">
+          ✨ 簡化模式
+        </button>
+
+        <button id="btnMute" class="pill-btn"
+                onclick="toggleMute()"
+                aria-pressed="false"
+                aria-label="切換廣東話語音引導開關">
+          🔊 語音開
+        </button>
+
+        <button id="btnTopReport" class="pill-btn tech-only"
+                onclick="openClinicalDashboard()"
+                aria-label="打開治療師覆診聲學報告">
+          📊 治療師報告
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hidden Developer Debug Bar (Strictly hidden & aria-hidden by default) -->
+  <div id="debugBar" class="debug-bar hidden" aria-hidden="true" role="region" aria-label="開發者測試工具列">
+    <div class="debug-bar-inner">
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span>🛠️ 開發者測試模式</span>
+      </div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.45rem;">
+        <button id="btnDebugSpeed" class="debug-btn"
+                onclick="toggleDebugSpeed()"
+                aria-pressed="false"
+                aria-label="切換 1 倍真實速度或 10 倍快速測試模式">
+          ⏱️ 目前：1x 真實30分鐘（點擊轉 10x 快測）
+        </button>
+        <button id="btnDebugJson" class="debug-btn"
+                onclick="openJsonDebugModal(this)"
+                aria-label="檢視目前課程 JSON 腳本與狀態">
+          { } JSON 腳本
+        </button>
+        <button class="debug-btn"
+                onclick="disableDebugMode()"
+                aria-label="關閉開發者測試模式並恢復真實 1 倍速度">
+          ✕ 關閉測試模式
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <!-- =================================================================== -->
+  <!-- MAIN APPLICATION CONTAINER                                          -->
+  <!-- =================================================================== -->
+  <main class="main-container" id="mainAppRegion">
+
+    <!-- ================================================================= -->
+    <!-- VIEW 1: HOME & HIGH-PRECISION BREAKPOINT RESUME                   -->
+    <!-- ================================================================= -->
+    <section id="viewHome" aria-labelledby="homeHeading">
+      <!-- High-Precision Breakpoint Resume Card -->
+      <div id="resumeBanner" class="card resume-card hidden" aria-hidden="true">
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+          <span class="badge badge-coral">💾 斷點續練已自動儲存</span>
+        </div>
+        <h2 id="resumeTitle" class="section-title" style="margin-bottom:0.4rem;">
+          老友，上次仲差少少就練完！要唔要接住繼續？
+        </h2>
+        <p id="resumeMeta" class="subtitle" style="margin-bottom:1rem;">
+          進度與聲學紀錄已安全存喺本機資料庫。
+        </p>
+        <div class="grid-2">
+          <button class="btn btn-coral btn-full"
+                  onclick="resumeSavedSession()"
+                  aria-label="從上次中斷的精準位置繼續訓練">
+            ▶️ 繼續上次進度
+          </button>
+          <button class="btn btn-secondary btn-full"
+                  onclick="discardAndStartFresh()"
+                  aria-label="清除上次中斷的進度，重新開始">
+            🔄 清除舊進度
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Hero Card -->
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.75rem;">
+          <span class="badge badge-teal">廣東話全程引導 · 30 分鐘</span>
+          <span id="dbStatusBadge" class="badge badge-slate tech-only">💾 本機資料庫就緒</span>
+        </div>
+
+        <h1 id="homeHeading" tabindex="-1" class="section-title" style="margin-bottom:0.45rem;">
+          老友你好！今日一齊輕鬆練吞嚥
+        </h1>
+        <p class="subtitle" style="margin-bottom:1.25rem;">
+          每個動作都有 3–5 秒循環示範動畫，配搭「氣球充氣」同「吹蠟燭」互動遊戲。訓練完成後，本機即時整理聲學評估報告俾治療師覆診參考。
+        </p>
+
+        <div style="display:flex; flex-direction:column; gap:0.8rem;">
+          <button class="btn btn-primary btn-full"
+                  onclick="startFlowToScreening('normal')"
+                  aria-label="開始 30 分鐘標準吞嚥訓練課程">
+            🌟 開始 30 分鐘吞嚥訓練（標準模式）
+          </button>
+
+          <div class="grid-2">
+            <button class="btn btn-secondary btn-full"
+                    onclick="startFlowToScreening('gentle')"
+                    aria-label="選擇輕量護航模式，適合今日有少少攰或剛食完飯">
+              🌿 今日有啲攰（輕量護航）
+            </button>
+            <button id="btnToggleQuickGames" class="btn btn-coral btn-full"
+                    onclick="openQuickGameMenu()"
+                    aria-expanded="false"
+                    aria-label="展開或收起互動遊戲與聲學評估捷徑">
+              🎮 直接玩遊戲／聲學評估
+            </button>
+          </div>
+        </div>
+
+        <!-- Optional Secondary Voice Assist Pill -->
+        <div class="aux-voice-row tech-only">
+          <button id="btnAuxVoiceHome" class="aux-voice-pill"
+                  onclick="triggerAuxVoice('home')"
+                  aria-label="啟用語音輔助功能，可以講開始訓練或睇報告">
+            🎤 語音輔助（選用）：可講「開始訓練」或「睇報告」
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick Game Menu -->
+      <div id="quickGameCard" class="card hidden" aria-hidden="true">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.8rem;">
+          <h2 style="font-size:1.2rem;">選擇互動復康小遊戲</h2>
+          <button class="pill-btn" onclick="openQuickGameMenu()" aria-label="收起遊戲選單">收起</button>
+        </div>
+        <div class="grid-2">
+          <button class="btn btn-choice"
+                  onclick="launchStandaloneStep('game_balloon')"
+                  aria-label="直接開始氣球充氣遊戲，訓練鼓腮防漏氣">
+            <div>
+              <div style="font-size:1.05rem;">🎈 氣球充氣（鼓腮防漏氣）</div>
+              <div style="font-size:0.84rem; color:var(--text-muted); font-weight:500;">訓練雙頰與口唇閉合力量</div>
+            </div>
+            <span aria-hidden="true">→</span>
+          </button>
+          <button class="btn btn-choice"
+                  onclick="launchStandaloneStep('game_candle')"
+                  aria-label="直接開始吹蠟燭遊戲及聲學評估，量度發聲持久度及音量穩定度">
+            <div>
+              <div style="font-size:1.05rem;">🕯️ 吹蠟燭（長音 MPT 聲學評估）</div>
+              <div style="font-size:0.84rem; color:var(--text-muted); font-weight:500;">即時量度發聲持久度與音量變異系數</div>
+            </div>
+            <span aria-hidden="true">→</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 5-Stage Curriculum Overview -->
+      <div class="card tech-only">
+        <h2 style="font-size:1.1rem; margin-bottom:0.8rem;">30 分鐘 5 大吞嚥訓練階段一覽</h2>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:0.65rem;">
+          <div style="padding:0.75rem; border-radius:14px; background:#F8FAFC; border:1px solid #E2E8F0;">
+            <div style="font-weight:700; color:var(--teal-dark);">1. 呼吸與頸肩熱身 (00–05分)</div>
+            <div style="font-size:0.84rem; color:var(--text-secondary);">腹式深呼吸、縮膊放鬆、緩慢轉頸</div>
+          </div>
+          <div style="padding:0.75rem; border-radius:14px; background:#F8FAFC; border:1px solid #E2E8F0;">
+            <div style="font-weight:700; color:var(--teal-dark);">2. 口唇與舌肌強化 (05–13分)</div>
+            <div style="font-size:0.84rem; color:var(--text-secondary);">嘟嘴咧嘴、🎈氣球充氣遊戲、伸舌運動</div>
+          </div>
+          <div style="padding:0.75rem; border-radius:14px; background:#F8FAFC; border:1px solid #E2E8F0;">
+            <div style="font-weight:700; color:var(--teal-dark);">3. 咽喉與吞嚥肌群 (13–21分)</div>
+            <div style="font-size:0.84rem; color:var(--text-secondary);">用力吞口水、假聲滑音、縮下巴抗阻＋體感檢查</div>
+          </div>
+          <div style="padding:0.75rem; border-radius:14px; background:#F8FAFC; border:1px solid #E2E8F0;">
+            <div style="font-weight:700; color:var(--coral-dark);">4. 保護氣道與清喉 (21–26分)</div>
+            <div style="font-size:0.84rem; color:var(--text-secondary);">🕯️吹蠟燭聲學評估（「啊—」長音）、主動清喉</div>
+          </div>
+          <div style="padding:0.75rem; border-radius:14px; background:#F8FAFC; border:1px solid #E2E8F0;">
+            <div style="font-weight:700; color:var(--teal-dark);">5. 舒緩與防哽塞問答 (26–30分)</div>
+            <div style="font-size:0.84rem; color:var(--text-secondary);">輕拍臉頰按摩＋3 條生活化防哽塞問答</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Footer with Always-Accessible Medical Disclaimer & Privacy Policy Button -->
+      <footer class="home-footer">
+        <span>🔒 100% 本機處理與儲存 · 咪高峰錄音絕不上傳雲端</span>
+        <button class="pill-btn"
+                onclick="openDisclaimerModal(this, true)"
+                aria-label="閱讀醫療免責聲明與本機私隱政策">
+          🛡️ 免責聲明與私隱
+        </button>
+      </footer>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 2: PRE-SESSION SAFETY SCREENING (課前安全快篩)                -->
+    <!-- ================================================================= -->
+    <section id="viewScreening" class="hidden" aria-hidden="true" aria-labelledby="screeningHeading">
+      <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.85rem;">
+          <span class="badge badge-amber">🩺 課前安全快篩</span>
+          <button class="pill-btn" onclick="replayVoice()" aria-label="重新播放廣東話語音提問">🔊 重聽語音</button>
+        </div>
+
+        <h1 id="screeningHeading" tabindex="-1" class="section-title" style="margin-bottom:0.85rem;">
+          開始前先檢查今日身體狀況
+        </h1>
+
+        <div class="ai-subtitle-box">
+          <div class="ai-subtitle-head"><span>AI 語音教練問緊你：</span></div>
+          <div id="screeningSubtitle" class="ai-subtitle-text">
+            老友，開始之前關心下你：今日精神好唔好？有冇發燒、咳得好犀利，或者啱啱食完飯呀？
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+          <button class="btn btn-choice"
+                  onclick="confirmScreening('normal')"
+                  aria-label="精神好好，沒有不適，開始標準 30 分鐘訓練">
+            <div>
+              <div style="font-size:1.1rem;">😊 精神好好，冇唔舒服</div>
+              <div style="font-size:0.85rem; color:var(--text-secondary); font-weight:500;">進入標準 30 分鐘吞嚥訓練</div>
+            </div>
+            <span class="badge badge-emerald">推薦</span>
+          </button>
+
+          <button class="btn btn-choice"
+                  onclick="confirmScreening('gentle')"
+                  aria-label="有少少攰或剛食完飯，切換輕量護航模式並加長休息">
+            <div>
+              <div style="font-size:1.1rem;">🌿 有啲攰／啱啱食完飯</div>
+              <div style="font-size:0.85rem; color:var(--text-secondary); font-weight:500;">自動切換輕量模式，減少次數並加長休息</div>
+            </div>
+            <span class="badge badge-amber">輕量</span>
+          </button>
+
+          <button class="btn btn-choice" style="border-color:#FDA4AF;"
+                  onclick="confirmScreening('stop')"
+                  aria-label="發燒、劇烈咳嗽或喉嚨痛，今日先暫停訓練休息">
+            <div>
+              <div style="font-size:1.1rem; color:#9F1239;">🤒 發燒／咳得好犀利／喉嚨好痛</div>
+              <div style="font-size:0.85rem; color:#BE123C; font-weight:500;">安全第一，今日先休息唔好勉強</div>
+            </div>
+            <span class="badge badge-rose">暫停</span>
+          </button>
+        </div>
+
+        <div class="aux-voice-row tech-only">
+          <button id="btnAuxVoiceScreen" class="aux-voice-pill"
+                  onclick="triggerAuxVoice('screening')"
+                  aria-label="啟用語音輔助回答安全快篩問題">
+            🎤 語音輔助（選用）：直接講「冇事」或「有啲攰」
+          </button>
+        </div>
+      </div>
+
+      <div id="safetyStopBox" class="card hidden" aria-hidden="true" style="border:2px solid #FDA4AF; background:#FFF1F2; text-align:center;">
+        <div style="font-size:2.4rem; margin-bottom:0.4rem;" aria-hidden="true">🫂</div>
+        <h2 style="font-size:1.3rem; color:#881337; margin-bottom:0.5rem;">老友，今日先好好休息！</h2>
+        <p style="color:#9F1239; margin-bottom:1.1rem;">
+          發燒或劇烈咳嗽時練習吞嚥容易濁親。建議先多休息，如有需要請向醫生或言語治療師查詢。
+        </p>
+        <button class="btn btn-primary" onclick="goHomeSafe()" aria-label="返回主頁">返回主頁</button>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 3: ACTIVE TRAINING & GAMIFIED ENGINE                         -->
+    <!-- ================================================================= -->
+    <section id="viewTraining" class="hidden" aria-hidden="true" aria-labelledby="stepTitle">
+      <div id="moduleStepper" class="stepper tech-only" aria-label="五階段訓練進度"></div>
+
+      <!-- Emergency Pause Recovery Banner -->
+      <div id="emergencyBanner" class="card hidden" aria-hidden="true" role="alert" style="border:2px solid var(--coral); background:#FFF7ED;">
+        <h2 style="color:#9A3412; font-size:1.22rem; margin-bottom:0.35rem;">✋ 已安全暫停 · 慢慢唞一唞先</h2>
+        <p style="color:#7C2D12; margin-bottom:0.9rem;">
+          坐直個身、慢慢咳乾淨唞啖氣，覺得舒服晒先按「繼續訓練」。你嘅精準進度已自動儲存。
+        </p>
+        <div class="grid-2">
+          <button class="btn btn-primary btn-full" onclick="resumeFromEmergency()" aria-label="舒服返晒，恢復訓練">▶️ 舒服返喇，繼續訓練</button>
+          <button class="btn btn-secondary btn-full" onclick="finishEarlyAndReport()" aria-label="結束今日訓練並前往查看治療師報告">📊 今日做到呢度（睇報告）</button>
+        </div>
+      </div>
+
+      <!-- Main Single-Focus Active Step Card -->
+      <div class="card" id="activeStepCard">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:0.5rem; margin-bottom:0.75rem;">
+          <div>
+            <div style="display:flex; flex-wrap:wrap; align-items:center; gap:0.4rem; margin-bottom:0.35rem;">
+              <span id="stepModuleTag" class="badge badge-teal">階段 1 · 呼吸熱身</span>
+              <!-- Wake Lock Active Indicator Pill -->
+              <span id="wakeLockPill" class="badge badge-amber hidden" aria-hidden="true">☀️ 螢幕常亮</span>
+            </div>
+            <h1 id="stepTitle" tabindex="-1" class="section-title">腹式深呼吸</h1>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.4rem;">
+            <span id="stepCounterPill" class="badge badge-slate">1 / 16</span>
+            <span id="phasePill" class="badge badge-emerald">示範中</span>
+          </div>
+        </div>
+
+        <!-- Cantonese Voice Subtitle Box -->
+        <div class="ai-subtitle-box">
+          <div class="ai-subtitle-head">
+            <span>🗣️ AI 語音教練引導</span>
+            <button class="pill-btn" style="min-height:32px; padding:0.2rem 0.65rem; font-size:0.78rem;"
+                    onclick="replayVoice()"
+                    aria-label="重聽這一步的廣東話語音指導">🔊 重聽</button>
+          </div>
+          <div id="trainingSubtitle" class="ai-subtitle-text">準備開始...</div>
+        </div>
+
+        <!-- SUB-VIEW A: STANDARD EXERCISE + 3-5s LOOPING SVG ANIMATION -->
+        <div id="subStandardExercise" class="hidden">
+          <div id="demoAnimContainer" class="demo-stage"></div>
+
+          <div class="timer-row">
+            <div class="ring-wrap" aria-label="動作倒數計時器">
+              <svg width="136" height="136" viewBox="0 0 120 120" style="transform:rotate(-90deg);" aria-hidden="true">
+                <circle cx="60" cy="60" r="52" fill="none" stroke="#E2E8F0" stroke-width="9"></circle>
+                <circle id="ringCircle" cx="60" cy="60" r="52" fill="none" stroke="#0D9488" stroke-width="9"
+                        stroke-linecap="round" stroke-dasharray="326.72" stroke-dashoffset="0"
+                        style="transition:stroke-dashoffset 0.25s linear;"></circle>
+              </svg>
+              <div class="ring-center">
+                <span id="ringLabel" style="font-size:0.76rem; font-weight:700; color:var(--teal-dark);">準備</span>
+                <span id="ringSeconds" class="ring-val">--</span>
+                <span id="ringRep" class="ring-sub">第 1 / 3 組</span>
+              </div>
+            </div>
+
+            <div style="flex:1; min-width:210px;">
+              <div style="background:#F8FAFC; border:1px solid #CBD5E1; border-radius:14px; padding:0.85rem; margin-bottom:0.75rem;">
+                <div style="font-size:0.84rem; font-weight:700; color:var(--teal-dark); margin-bottom:0.2rem;">💡 動作貼士</div>
+                <div id="exerciseTip" style="font-size:0.95rem; color:var(--text-secondary);">保持坐姿端正。</div>
+              </div>
+              <button id="btnManualStartOrNext" class="btn btn-primary btn-full"
+                      onclick="handleExercisePrimaryBtn()"
+                      aria-label="立即開始倒數或完成這一步">
+                ▶️ 立即開始倒數
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW B: GAMIFIED BALLOON INFLATION (Decoupled Game Loop & Mic Loop) -->
+        <div id="subBalloonGame" class="hidden">
+          <div class="game-arena game-arena-light">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.5rem;">
+              <span class="badge badge-coral">🎈 遊戲 1：鼓腮氣球充氣</span>
+              <span id="balloonCountBadge" class="badge badge-teal">已完成：0 / 3 個氣球</span>
+            </div>
+
+            <div class="canvas-box" style="height:230px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.7);">
+              <canvas id="balloonConfettiCanvas" aria-hidden="true" style="position:absolute; inset:0; pointer-events:none; z-index:3;"></canvas>
+
+              <div style="display:flex; align-items:center; justify-content:center; gap:1.5rem; width:100%; padding:0 1rem; z-index:2;">
+                <svg width="110" height="110" viewBox="0 0 120 120" role="img" aria-label="鼓腮示範頭像動畫">
+                  <circle cx="60" cy="60" r="46" fill="#FDE68A" stroke="#D97706" stroke-width="3"/>
+                  <circle cx="44" cy="48" r="4.5" fill="#1E293B"/>
+                  <circle cx="76" cy="48" r="4.5" fill="#1E293B"/>
+                  <circle id="faceCheekL" cx="32" cy="68" r="10" fill="#FB923C" fill-opacity="0.35"/>
+                  <circle id="faceCheekR" cx="88" cy="68" r="10" fill="#FB923C" fill-opacity="0.35"/>
+                  <path d="M50 72 Q60 76 70 72" stroke="#9A3412" stroke-width="4" stroke-linecap="round" fill="none"/>
+                </svg>
+
+                <svg width="150" height="190" viewBox="0 0 150 190" role="img" aria-label="正在充氣的氣球">
+                  <path d="M75 142 Q70 165 78 184" stroke="#64748B" stroke-width="2.5" fill="none"/>
+                  <g id="balloonGroup" transform="translate(75, 130) scale(0.38)">
+                    <ellipse cx="0" cy="-58" rx="52" ry="62" fill="#F97316" id="balloonBody"/>
+                    <ellipse cx="-18" cy="-78" rx="12" ry="20" fill="#FFFFFF" fill-opacity="0.35" transform="rotate(-20 -18 -78)"/>
+                    <polygon points="-8,2 8,2 0,-8" fill="#EA580C"/>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <div style="margin-top:0.75rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.88rem; font-weight:700;">
+                <span id="balloonStatusText">合實嘴唇脹起面珠墩，長按下面個掣幫氣球充氣！</span>
+                <span id="balloonPercentText" style="color:var(--coral-dark);">0%</span>
+              </div>
+              <div class="meter-bar-bg light" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="balloonProgressRole">
+                <div id="balloonMeterFill" class="meter-bar-fill" style="background:linear-gradient(90deg, #FB923C, #F97316, #EF4444);"></div>
+              </div>
+            </div>
+
+            <div style="margin-top:0.9rem; display:flex; flex-direction:column; gap:0.6rem;">
+              <button id="btnHoldBalloon" class="btn btn-coral btn-full"
+                      aria-label="長按幫氣球充氣，請同時鼓起面珠墩合實嘴唇"
+                      onpointerdown="startBalloonHold(event)"
+                      onpointerup="stopBalloonHold()"
+                      onpointerleave="stopBalloonHold()"
+                      onpointercancel="stopBalloonHold()">
+                🎈 長按鼓腮充氣（保持面珠墩脹起）
+              </button>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button id="btnBalloonMic" class="pill-btn tech-only"
+                        onclick="toggleBalloonMic()"
+                        aria-pressed="false"
+                        aria-label="開啟或關閉選用的咪高峰吹氣偵測">
+                  🎙️ 開啟咪高峰吹氣偵測（選用）
+                </button>
+                <button id="btnBalloonNext" class="btn btn-primary hidden" style="flex:1;"
+                        onclick="completeCurrentStepAndAdvance()"
+                        aria-label="完成氣球充氣遊戲，前往下一步">
+                  ✅ 氣球充氣完成！下一步 →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW C: GAMIFIED CANDLE BLOWING + STRICT SCIENTIFIC ACOUSTIC ASSESSMENT -->
+        <div id="subCandleGame" class="hidden">
+          <div class="game-arena">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.6rem;">
+              <span class="badge badge-coral">🕯️ 遊戲 2：吹蠟燭（「啊—」長音聲學評估）</span>
+              <span id="candleTargetBadge" class="badge badge-teal">達標線：55 dB · 有效時長 ≥ 1.0 秒</span>
+            </div>
+
+            <div class="canvas-box" style="background:radial-gradient(circle at 50% 42%, #1E293B 0%, #0B1120 100%);">
+              <canvas id="candleCanvas" role="img" aria-label="吹蠟燭互動動畫畫面，發聲音量越大燭火越細直至吹熄"></canvas>
+            </div>
+
+            <div style="margin-top:0.75rem;">
+              <div style="display:flex; justify-content:space-between; font-size:0.86rem; font-weight:700;">
+                <span id="candlePromptStatus">深吸一口氣，發「啊———」長音吹熄支蠟燭！</span>
+                <span id="liveDbDisplay" style="color:#5EEAD4;">0 dB</span>
+              </div>
+              <div class="meter-bar-bg">
+                <div class="meter-threshold-line" title="55 dB 達標線"></div>
+                <div id="candleDbFill" class="meter-bar-fill"></div>
+              </div>
+            </div>
+
+            <!-- Live Telemetry Strip (Starts as 未量度, ONLY populates on valid >= 1.0s phonation) -->
+            <div class="telemetry-strip tech-only">
+              <div class="telemetry-cell">
+                <div class="telemetry-label">發聲持久度 MPT</div>
+                <div id="liveMptVal" class="telemetry-value">未量度</div>
+              </div>
+              <div class="telemetry-cell">
+                <div class="telemetry-label">音量變異系數 CV%</div>
+                <div id="liveCvVal" class="telemetry-value">未量度</div>
+              </div>
+              <div class="telemetry-cell">
+                <div class="telemetry-label">平均音量 Mean</div>
+                <div id="liveMeanDbVal" class="telemetry-value">未量度</div>
+              </div>
+              <div class="telemetry-cell">
+                <div class="telemetry-label">最高音量 Peak</div>
+                <div id="livePeakDbVal" class="telemetry-value">未量度</div>
+              </div>
+            </div>
+
+            <div style="margin-top:0.95rem; display:flex; flex-direction:column; gap:0.6rem;">
+              <div class="grid-2">
+                <button id="btnCandleMic" class="btn btn-primary btn-full"
+                        onclick="toggleCandleMic()"
+                        aria-pressed="false"
+                        aria-label="開啟或關閉咪高峰，量度真實發聲並吹熄蠟燭">
+                  🎙️ 開啟咪高峰吹蠟燭
+                </button>
+                <button id="btnSimAh" class="btn btn-coral btn-full"
+                        aria-label="長按進行模擬發聲測試，模擬啊字長音吹熄蠟燭"
+                        onpointerdown="startSimAh(event)"
+                        onpointerup="stopSimAh()"
+                        onpointerleave="stopSimAh()"
+                        onpointercancel="stopSimAh()">
+                  🗣️ 按住模擬發聲測試（「啊—」）
+                </button>
+              </div>
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button class="pill-btn" onclick="resetCandleFlame(true)" aria-label="重新點燃蠟燭再試一次">🔄 再吹多次</button>
+                <button id="btnCandleDone" class="btn btn-primary" style="flex:1;"
+                        onclick="finishCandleStep()"
+                        aria-label="完成吹蠟燭步驟並繼續下一步">
+                  ✅ 完成並繼續 →
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW D: MID-SESSION CHECK-IN -->
+        <div id="subCheckin" class="hidden">
+          <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <button class="btn btn-choice" onclick="submitCheckin('順暢良好，口水充足')" aria-label="回答好順暢，口水夠，繼續下一部分">
+              <span>😊 好順暢，口水夠，繼續下一部分</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="btn btn-choice" onclick="submitCheckin('略感口乾，已加長休息')" aria-label="回答有少少口乾，自動加長休息時間">
+              <span>💧 有啲口乾，想唞多陣（飲一小口溫水）</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="btn btn-choice" style="border-color:#FDA4AF;" onclick="submitCheckin('感到卡住或不適，已暫停')" aria-label="回答覺得有少少卡住或不舒服，立即安全暫停">
+              <span style="color:#9F1239;">✋ 覺得有啲卡住／唔舒服，想先唞下</span>
+              <span aria-hidden="true">!</span>
+            </button>
+          </div>
+          <div class="aux-voice-row tech-only">
+            <button id="btnAuxVoiceCheckin" class="aux-voice-pill"
+                    onclick="triggerAuxVoice('checkin')"
+                    aria-label="啟用語音輔助回答體感檢查">
+              🎤 語音輔助（選用）：可講「好順暢」或「有啲口乾」
+            </button>
+          </div>
+        </div>
+
+        <!-- SUB-VIEW E: INTERACTIVE ANTI-CHOKING QUIZ -->
+        <div id="subQuiz" class="hidden">
+          <div id="quizOptionsBox" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+          <div id="quizFeedbackBox" class="hidden" role="status" style="margin-top:0.9rem; padding:1rem; border-radius:16px; font-weight:600;"></div>
+          <button id="btnQuizNext" class="btn btn-primary btn-full hidden" style="margin-top:0.85rem;"
+                  onclick="completeCurrentStepAndAdvance()"
+                  aria-label="前往下一題或完成訓練">
+            繼續下一題 →
+          </button>
+          <div class="aux-voice-row tech-only">
+            <button id="btnAuxVoiceQuiz" class="aux-voice-pill"
+                    onclick="triggerAuxVoice('quiz')"
+                    aria-label="啟用語音輔助直接講出問答答案">
+              🎤 語音輔助（選用）：直接講出答案
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================= -->
+    <!-- VIEW 4: THERAPIST CLINICAL TREND DASHBOARD                        -->
+    <!-- ================================================================= -->
+    <section id="viewReport" class="hidden" aria-hidden="true" aria-labelledby="reportHeading">
+      <div class="card">
+        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:0.75rem; margin-bottom:1rem;">
+          <div>
+            <span class="badge badge-teal" style="margin-bottom:0.35rem;">科研級聲學量化評估 · 零造假數據保證</span>
+            <h1 id="reportHeading" tabindex="-1" class="section-title">治療師覆診聲學報告</h1>
+            <p class="subtitle">只記錄真實量度之聲學數據（未量度項目清楚標示「是次未量度」）。全數儲存於本機 IndexedDB。</p>
+          </div>
+          <div class="no-print" style="display:flex; flex-wrap:wrap; gap:0.5rem;">
+            <button class="pill-btn active" onclick="exportReportsCSV()" aria-label="匯出治療師覆診用 CSV 檔案">📥 匯出 CSV</button>
+            <button class="pill-btn" onclick="window.print()" aria-label="列印治療師覆診聲學報告">🖨️ 列印報告</button>
+            <button class="pill-btn" onclick="goHomeSafe()" aria-label="返回主頁">🏠 返回主頁</button>
+          </div>
+        </div>
+
+        <!-- Latest Clinical KPI Cards -->
+        <div class="grid-4" style="margin-bottom:1.15rem;">
+          <div class="kpi-card">
+            <div class="kpi-label">最新發聲持久度 (MPT)</div>
+            <div id="kpiMpt" class="kpi-val">是次未量度</div>
+            <div id="kpiMptBench" class="kpi-bench" style="color:var(--text-muted);">參考標準 ≥ 10.0 秒</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">音量變異系數 (CV%)</div>
+            <div id="kpiCv" class="kpi-val">是次未量度</div>
+            <div id="kpiCvBench" class="kpi-bench" style="color:var(--text-muted);">參考標準 ≤ 12.0% 穩定</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">平均發聲音量</div>
+            <div id="kpiMeanDb" class="kpi-val">是次未量度</div>
+            <div id="kpiPeakDb" class="kpi-bench" style="color:var(--text-muted);">峰值：未量度</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">防哽塞問答得分</div>
+            <div id="kpiQuiz" class="kpi-val">-- / 3</div>
+            <div id="kpiModeNote" class="kpi-bench" style="color:var(--text-muted);">最近一次紀錄</div>
+          </div>
+        </div>
+
+        <!-- Trend Chart 1: MPT -->
+        <div class="chart-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem;">
+            <h2 style="font-size:1.05rem;">📈 發聲持久度趨勢 (MPT 秒)</h2>
+            <span class="badge badge-emerald">虛線 = 10 秒達標線 · 自動跳過未量度紀錄</span>
+          </div>
+          <div id="chartMptWrap"></div>
+        </div>
+
+        <!-- Trend Chart 2: Volume CV% -->
+        <div class="chart-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.4rem; margin-bottom:0.5rem;">
+            <h2 style="font-size:1.05rem;">📉 音量穩定度趨勢 (變異系數 CV%)</h2>
+            <span class="badge badge-teal">綠色區間 ≤ 12%（越低越穩定）</span>
+          </div>
+          <div id="chartCvWrap"></div>
+        </div>
+
+        <!-- Session History Table -->
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem; margin:1rem 0 0.6rem;">
+          <h2 style="font-size:1.05rem;">歷次訓練紀錄（本機 IndexedDB）</h2>
+          <button id="btnClearDemo" class="pill-btn no-print"
+                  onclick="openConfirmClearModal(this)"
+                  aria-label="清除系統預設的示範數據，保留真實訓練紀錄">
+            🗑️ 清除示範數據
+          </button>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>日期時間</th>
+                <th>模式</th>
+                <th>MPT (秒)</th>
+                <th>CV%</th>
+                <th>平均 / 峰值 dB</th>
+                <th>問答</th>
+                <th>體感備註</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- =================================================================== -->
+  <!-- ALWAYS-ACCESSIBLE BOTTOM SAFETY DOCK                                -->
+  <!-- =================================================================== -->
+  <nav id="bottomDock" class="bottom-dock hidden" aria-hidden="true" aria-label="訓練控制與緊急暫停工具列">
+    <div class="bottom-dock-inner">
+      <button id="dockPauseBtn" class="dock-btn" onclick="togglePause()" aria-label="暫停或繼續訓練">
+        <span id="dockPauseIcon" aria-hidden="true">⏸️</span>
+        <span id="dockPauseText">暫停</span>
+      </button>
+      <button class="dock-btn" onclick="replayVoice()" aria-label="重新播放目前廣東話語音">
+        <span aria-hidden="true">🔊</span>
+        <span>重聽語音</span>
+      </button>
+      <button class="dock-btn" onclick="skipStep()" aria-label="跳過這一步，前往下一個練習">
+        <span aria-hidden="true">⏭️</span>
+        <span>跳過呢步</span>
+      </button>
+      <button class="dock-btn emergency" onclick="triggerEmergencyPause()" aria-label="咳親或不適，立即緊急暫停休息">
+        <span aria-hidden="true">✋</span>
+        <span>咳親／唞下</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- =================================================================== -->
+  <!-- MODAL 1: FIRST-LAUNCH MEDICAL DISCLAIMER & LOCAL PRIVACY POLICY     -->
+  <!-- =================================================================== -->
+  <div id="disclaimerModal" class="modal-backdrop hidden" aria-hidden="true"
+       role="dialog" aria-modal="true" aria-labelledby="disclaimerTitle">
+    <div class="modal-box">
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;">
+        <span class="badge badge-amber">Apple 醫療與私隱指引</span>
+      </div>
+      <h2 id="disclaimerTitle" tabindex="-1" style="font-size:1.35rem; margin-bottom:0.75rem;">
+        重要安全提示與私隱保障
+      </h2>
+      <p style="color:var(--text-secondary); margin-bottom:0.85rem; line-height:1.65;">
+        本應用程式並非醫療裝置，不能取代醫生或言語治療師的專業診斷與治療建議。如訓練期間感到任何不適、頭暈、劇烈咳嗽或呼吸困難，請立即停止訓練並諮詢醫護人員。
+      </p>
+
+      <div class="privacy-highlight">
+        🔒 100% 本機私隱處理：你的咪高峰收音、口肌訓練進度及聲學評估紀錄全數只在本機即時處理及儲存，絕不上傳至任何雲端伺服器。
+      </div>
+
+      <button id="btnAcceptDisclaimer" class="btn btn-primary btn-full"
+              onclick="acceptDisclaimer()"
+              aria-label="我已閱讀並明白安全提示與私隱保障，開始使用應用程式">
+        我已閱讀並明白，開始使用
+      </button>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- MODAL 2: CONFIRM CLEAR DEMO DATA                                    -->
+  <!-- =================================================================== -->
+  <div id="confirmModal" class="modal-backdrop hidden" aria-hidden="true"
+       role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-box">
+      <h2 id="confirmModalTitle" tabindex="-1" style="font-size:1.25rem; margin-bottom:0.5rem;">清除示範數據？</h2>
+      <p style="color:var(--text-secondary); margin-bottom:1.25rem;">
+        呢個操作只會清除標有「示範」標籤嘅預設紀錄，你老友自己練過嘅真實數據會完全保留。
+      </p>
+      <div class="grid-2">
+        <button class="btn btn-secondary btn-full" onclick="closeModal('confirmModal')" aria-label="取消清除示範數據">取消</button>
+        <button class="btn btn-danger btn-full" onclick="confirmClearDemoData()" aria-label="確定清除示範數據">確定清除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- MODAL 3: DEVELOPER JSON SCRIPT INSPECTOR (Debug Mode Only)          -->
+  <!-- =================================================================== -->
+  <div id="jsonModal" class="modal-backdrop hidden" aria-hidden="true"
+       role="dialog" aria-modal="true" aria-labelledby="jsonModalTitle">
+    <div class="modal-box" style="max-width:640px;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2 id="jsonModalTitle" tabindex="-1" style="font-size:1.2rem;">{ } 課程 JSON 腳本與即時狀態</h2>
+        <button class="pill-btn" onclick="closeModal('jsonModal')" aria-label="關閉 JSON 腳本檢視視窗">關閉</button>
+      </div>
+      <pre id="jsonPreContent" class="json-pre"></pre>
+    </div>
+  </div>
+
+  <!-- =================================================================== -->
+  <!-- APPLICATION JAVASCRIPT                                              -->
+  <!-- =================================================================== -->
+  <script>
+    /* ---------------------------------------------------------------------
+     * 1. PERSISTED SETTINGS & DISCLAIMER KEYS (localStorage)
+     * --------------------------------------------------------------------- */
+    const DISCLAIMER_KEY = 'lohas_disclaimer_accepted_v1';
+    const SETTINGS_KEY = 'lohas_settings_v1';
+
+    function loadPersistedSettings() {
+      try {
+        const raw = localStorage.getItem(SETTINGS_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.largeFont === 'boolean') state.largeFont = parsed.largeFont;
+        if (typeof parsed.simpleMode === 'boolean') state.simpleMode = parsed.simpleMode;
+        if (typeof parsed.isMuted === 'boolean') state.isMuted = parsed.isMuted;
+      } catch (e) {}
+    }
+
+    function savePersistedSettings() {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({
+          largeFont: state.largeFont,
+          simpleMode: state.simpleMode,
+          isMuted: state.isMuted
+        }));
+      } catch (e) {}
+    }
+
+    function applySettingsToDOM() {
+      document.documentElement.classList.toggle('large-font', state.largeFont);
+      const btnLF = document.getElementById('btnLargeFont');
+      btnLF.classList.toggle('active', state.largeFont);
+      btnLF.setAttribute('aria-pressed', String(state.largeFont));
+
+      document.body.classList.toggle('simplified-mode', state.simpleMode);
+      const btnSim = document.getElementById('btnSimplified');
+      btnSim.classList.toggle('coral-active', state.simpleMode);
+      btnSim.setAttribute('aria-pressed', String(state.simpleMode));
+
+      const btnMute = document.getElementById('btnMute');
+      btnMute.textContent = state.isMuted ? '🔇 已靜音' : '🔊 語音開';
+      btnMute.setAttribute('aria-pressed', String(state.isMuted));
+
+      // Ensure screen readers skip tech-only elements hidden in simplified mode
+      document.querySelectorAll('.tech-only').forEach(el => {
+        if (state.simpleMode) el.setAttribute('aria-hidden', 'true');
+        else el.removeAttribute('aria-hidden');
+      });
+    }
+
+    /* ---------------------------------------------------------------------
+     * 2. INDEXEDDB LAYER (LohasSwallowDB v2: checkpoints & session_reports)
+     * --------------------------------------------------------------------- */
+    const DB_NAME = 'LohasSwallowDB';
+    const DB_VERSION = 2;
+    let db = null;
+
+    function initDatabase() {
+      return new Promise((resolve) => {
+        if (!window.indexedDB) {
+          updateDbBadge('瀏覽器不支援 IndexedDB');
+          resolve(null);
+          return;
+        }
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const database = e.target.result;
+          if (!database.objectStoreNames.contains('checkpoints')) {
+            database.createObjectStore('checkpoints', { keyPath: 'id' });
+          }
+          if (!database.objectStoreNames.contains('session_reports')) {
+            database.createObjectStore('session_reports', { keyPath: 'id', autoIncrement: true });
+          }
+        };
+        req.onsuccess = (e) => {
+          db = e.target.result;
+          updateDbBadge('本機資料庫已連線');
+          resolve(db);
+        };
+        req.onerror = () => {
+          updateDbBadge('本機資料庫唯讀模式');
+          resolve(null);
+        };
+      });
+    }
+
+    function updateDbBadge(txt) {
+      const el = document.getElementById('dbStatusBadge');
+      if (el) el.textContent = '💾 ' + txt;
+    }
+
+    function dbPut(storeName, value) {
+      return new Promise((resolve) => {
+        if (!db) return resolve(false);
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).put(value);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch (err) { resolve(false); }
+      });
+    }
+
+    function dbAdd(storeName, value) {
+      return new Promise((resolve) => {
+        if (!db) return resolve(false);
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).add(value);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch (err) { resolve(false); }
+      });
+    }
+
+    function dbGet(storeName, key) {
+      return new Promise((resolve) => {
+        if (!db) return resolve(null);
+        try {
+          const tx = db.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).get(key);
+          req.onsuccess = () => resolve(req.result || null);
+          req.onerror = () => resolve(null);
+        } catch (err) { resolve(null); }
+      });
+    }
+
+    function dbGetAll(storeName) {
+      return new Promise((resolve) => {
+        if (!db) return resolve([]);
+        try {
+          const tx = db.transaction(storeName, 'readonly');
+          const req = tx.objectStore(storeName).getAll();
+          req.onsuccess = () => resolve(req.result || []);
+          req.onerror = () => resolve([]);
+        } catch (err) { resolve([]); }
+      });
+    }
+
+    function dbDelete(storeName, key) {
+      return new Promise((resolve) => {
+        if (!db) return resolve(false);
+        try {
+          const tx = db.transaction(storeName, 'readwrite');
+          tx.objectStore(storeName).delete(key);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        } catch (err) { resolve(false); }
+      });
+    }
+
+    // Pre-seed 4 clearly flagged demo records for chart preview
+    async function seedDemoReportsIfEmpty() {
+      const existing = await dbGetAll('session_reports');
+      if (existing.length > 0) return;
+
+      const now = Date.now();
+      const day = 86400000;
+      const demoRecords = [
+        {
+          date: new Date(now - 12 * day).toISOString(),
+          durationMin: 30, mode: 'gentle',
+          mptSec: 7.4, volumeCv: 16.8, meanDb: 58.2, peakDb: 66.0,
+          quizScore: 2, quizTotal: 3, checkinNote: '略感口乾，已加長休息', isDemo: true
+        },
+        {
+          date: new Date(now - 8 * day).toISOString(),
+          durationMin: 30, mode: 'normal',
+          mptSec: 8.9, volumeCv: 14.2, meanDb: 61.5, peakDb: 69.5,
+          quizScore: 3, quizTotal: 3, checkinNote: '順暢良好，口水充足', isDemo: true
+        },
+        {
+          date: new Date(now - 4 * day).toISOString(),
+          durationMin: 30, mode: 'normal',
+          mptSec: 10.6, volumeCv: 11.4, meanDb: 64.0, peakDb: 72.0,
+          quizScore: 3, quizTotal: 3, checkinNote: '順暢良好，口水充足', isDemo: true
+        },
+        {
+          date: new Date(now - 1 * day).toISOString(),
+          durationMin: 30, mode: 'normal',
+          mptSec: 11.8, volumeCv: 9.6, meanDb: 66.3, peakDb: 74.5,
+          quizScore: 3, quizTotal: 3, checkinNote: '精神良好，吹蠟燭表現穩定', isDemo: true
+        }
+      ];
+
+      for (const rec of demoRecords) {
+        await dbAdd('session_reports', rec);
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+     * 3. FIVE-STAGE 30-MINUTE CURRICULUM & 10 LOOPING SVG ANIMATIONS
+     * --------------------------------------------------------------------- */
+    const MODULES = [
+      { id: 1, short: '1.熱身', title: '呼吸與頸肩熱身 (00–05分)' },
+      { id: 2, short: '2.口唇舌肌', title: '口唇與舌肌強化 (05–13分)' },
+      { id: 3, short: '3.咽喉吞嚥', title: '咽喉與吞嚥肌群 (13–21分)' },
+      { id: 4, short: '4.氣道清喉', title: '保護氣道與清喉 (21–26分)' },
+      { id: 5, short: '5.舒緩問答', title: '舒緩按摩與防哽塞問答 (26–30分)' }
+    ];
+
+    function buildCourseSteps(mode) {
+      const gentle = mode === 'gentle';
+      const r = (n) => Math.max(2, gentle ? n - 1 : n);
+      const restExtra = gentle ? 5 : 0;
+
+      return [
+        // Stage 1: 00-05 min
+        {
+          id: 'breathing', moduleId: 1, type: 'exercise', anim: 'breathing',
+          name: '腹式深呼吸', reps: r(4), actionSec: 12, restSec: 8 + restExtra,
+          voice: '老友，先坐直個身。望住上面嘅動畫，用鼻慢慢吸氣令個肚脹起，然後合埋少少個嘴慢慢呼氣。',
+          actionCue: '慢慢吸氣……再慢慢呼出嚟。',
+          restCue: '做得好好，唞一唞氣先。',
+          tip: '吸氣 4 秒、呼氣 6 秒，肩膀自然放鬆唔好聳起。'
+        },
+        {
+          id: 'shoulders', moduleId: 1, type: 'exercise', anim: 'shoulders',
+          name: '縮膊放鬆練習', reps: r(4), actionSec: 10, restSec: 8 + restExtra,
+          voice: '跟住放鬆下膊頭。吸氣嗰陣將兩邊膊頭慢慢向上縮起靠近耳仔，停兩秒，然後呼氣一口氣放鬆落嚟。',
+          actionCue: '慢慢縮起膊頭……停一停……呼氣放鬆！',
+          restCue: '膊頭鬆晒，唞一唞氣。',
+          tip: '放鬆頸肩肌肉有助吞嚥時喉部順暢郁動。'
+        },
+        {
+          id: 'neck', moduleId: 1, type: 'exercise', anim: 'neck',
+          name: '緩慢轉頸舒展', reps: r(4), actionSec: 12, restSec: 8 + restExtra,
+          voice: '望住動畫，慢慢將個頭向左邊同右邊輕輕傾一傾，動作柔和唔好太快。',
+          actionCue: '慢慢向左傾……再慢慢向右傾。',
+          restCue: '頸部鬆晒，準備進入第二階段。',
+          tip: '如有少少頭暈可減小幅度，量力而為。'
+        },
+
+        // Stage 2: 05-13 min
+        {
+          id: 'lips', moduleId: 2, type: 'exercise', anim: 'lips',
+          name: '嘟嘴與咧嘴交替', reps: r(5), actionSec: 12, restSec: 8 + restExtra,
+          voice: '進入第二階段，鍛鍊嘴唇閉合。用力向前嘟嘴講「烏—」，再向兩邊拉開笑講「咿—」。',
+          actionCue: '嘟嘴「烏—」……咧嘴笑「咿—」。',
+          restCue: '放鬆嘴唇，唞一唞。',
+          tip: '嘴唇有力可以幫手喺飲水同食嘢嗰陣唔會漏出嚟。'
+        },
+        {
+          id: 'game_balloon', moduleId: 2, type: 'game_balloon', anim: 'balloon',
+          name: '鼓腮氣球充氣遊戲', targetBalloons: gentle ? 2 : 3,
+          voice: '老友，嚟玩第一個遊戲「氣球充氣」！吸一口氣入個口，合實嘴唇脹起兩邊面珠墩，同時長按下面個橙色大掣幫氣球充氣！',
+          tip: '保持嘴唇合實唔漏氣，強化臉頰推食物入喉嚨嘅力量。'
+        },
+        {
+          id: 'tongue', moduleId: 2, type: 'exercise', anim: 'tongue',
+          name: '伸舌上下左右運動', reps: r(5), actionSec: 12, restSec: 10 + restExtra,
+          voice: '跟住鍛鍊舌頭靈活度。望住動畫，將條脷慢慢向前伸出，再向左邊同右邊嘴角郁動。',
+          actionCue: '向前伸舌……向左郁……再向右郁。',
+          restCue: '收返條脷唞一唞，準備進入第三階段。',
+          tip: '舌頭有力先可以幫食物攪勻同順利推落喉嚨。'
+        },
+
+        // Stage 3: 13-21 min
+        {
+          id: 'swallow', moduleId: 3, type: 'exercise', anim: 'swallow',
+          name: '用力吞口水 (Effortful Swallow)', reps: r(5), actionSec: 8, restSec: 15 + restExtra,
+          voice: '而家做核心吞嚥練習：用力吞口水。想像吞緊一粒大提子，用盡舌頭同喉嚨力氣吞一啖口水。每下之間會唞耐少少，等口水積返夠。',
+          actionCue: '準備……用盡力吞一啖口水！',
+          restCue: '做得好！唞一陣等口水潤返喉嚨。',
+          tip: '切記唔好乾吞得太密，休息時可舔下上顎幫助生口水。'
+        },
+        {
+          id: 'pitch', moduleId: 3, type: 'exercise', anim: 'pitch',
+          name: '假聲滑音「咿—」', reps: r(5), actionSec: 10, restSec: 10 + restExtra,
+          voice: '跟住做假聲滑音，睇住波點由低向上爬。吸一口氣，發「咿—」嘅音，由低音慢慢拉上最高音。',
+          actionCue: '吸氣……「咿———」由低音滑上高音！',
+          restCue: '好叻呀，放鬆喉嚨唞一唞。',
+          tip: '音調升高時喉結會向上提，有助強化保護氣道嘅吞嚥動作。'
+        },
+        {
+          id: 'chintuck', moduleId: 3, type: 'exercise', anim: 'chintuck',
+          name: '縮下巴抗阻練習', reps: r(4), actionSec: 10, restSec: 12 + restExtra,
+          voice: '將隻手掌輕輕托住下巴下面，微微向下縮下巴同隻手輕輕鬥力，維持幾秒再放鬆。',
+          actionCue: '下巴微微向內縮，同手掌輕輕抗阻……',
+          restCue: '放鬆隻手同下巴，唞一唞氣。',
+          tip: '強化舌骨上肌群，力道保持柔和唔好過猛。'
+        },
+        {
+          id: 'checkin', moduleId: 3, type: 'checkin',
+          name: '課中體感檢查',
+          voice: '老友，已經練咗超過一半喇！你覺得而家口水夠唔夠？吞嘅時候有冇覺得卡住或者唔舒服呀？'
+        },
+
+        // Stage 4: 21-26 min
+        {
+          id: 'game_candle', moduleId: 4, type: 'game_candle', anim: 'candle',
+          name: '吹蠟燭遊戲（「啊—」長音聲學評估）',
+          voice: '嚟到「吹蠟燭」互動遊戲！深吸一口氣，用響亮又穩定嘅聲音拉長講「啊———」吹熄支蠟燭。系統會喺本機即時量度你嘅發聲持久度同音量穩定度。',
+          tip: '如想記錄臨床聲學數據，請開啟咪高峰發聲至少 1 秒；如未開咪高峰，報告會如實標示「是次未量度」。'
+        },
+        {
+          id: 'cough', moduleId: 4, type: 'exercise', anim: 'cough',
+          name: '主動清喉／輕咳保護氣道', reps: r(4), actionSec: 8, restSec: 10 + restExtra,
+          voice: '跟住練下保護氣道。吸一口氣，有力但唔傷喉嚨咁輕咳兩聲「咳、咳」，練習迅速收緊聲門。',
+          actionCue: '吸氣……主動清喉「咳、咳」！',
+          restCue: '做得好，放鬆喉嚨唞氣。',
+          tip: '有力嘅主動清喉動作係防止食物跌入氣管嘅重要防線。'
+        },
+
+        // Stage 5: 26-30 min
+        {
+          id: 'massage', moduleId: 5, type: 'exercise', anim: 'massage',
+          name: '輕拍臉頰舒緩按摩', reps: 3, actionSec: 14, restSec: 6,
+          voice: '辛苦晒老友！進入最後舒緩階段。用手指腹輕輕打圈按摩兩邊面珠墩，幫口肌放鬆。',
+          actionCue: '雙手輕輕打圈按摩兩邊面珠墩……',
+          restCue: '好舒服呀，跟住玩三條生活防哽塞問答。',
+          tip: '力道輕柔即可，做完如有需要可細啖飲少少溫水。'
+        },
+        {
+          id: 'quiz_1', moduleId: 5, type: 'quiz', quizNum: 1,
+          name: '防哽塞小測驗（第 1 / 3 題）',
+          voice: '老友考下你：平時飲水覺得容易濁親，應該「縮一縮下巴飲」定係「抬高頭飲」會安全啲呀？',
+          options: [
+            { label: '縮一縮下巴飲（微微低頭）', correct: true, kw: ['縮', '下巴', '低頭'] },
+            { label: '抬高頭大啖飲', correct: false, kw: ['抬高', '大啖', '仰頭'] }
+          ],
+          okMsg: '答啱晒！微微縮一縮下巴可以幫手收窄氣管入口，飲水冇咁易濁親。',
+          noMsg: '唔緊要，記住呀：抬高頭飲水容易流錯入氣管，應該「縮一縮下巴」細啖飲最安全。'
+        },
+        {
+          id: 'quiz_2', moduleId: 5, type: 'quiz', quizNum: 2,
+          name: '防哽塞小測驗（第 2 / 3 題）',
+          voice: '第二題：食飯嗰陣覺得口乾吞唔落，應該「細啖飲少少水潤一潤口」，定係「大啖飲湯硬沖落去」呢？',
+          options: [
+            { label: '細啖飲少少水潤一潤口', correct: true, kw: ['細啖', '少少', '潤', '水'] },
+            { label: '大啖飲湯硬沖落去', correct: false, kw: ['大啖', '湯', '沖'] }
+          ],
+          okMsg: '完全正確！細啖飲水潤喉先最安全，千祈唔好用大啖湯硬沖啲飯落去。',
+          noMsg: '要小心呀老友，大啖飲湯沖食物容易令水同飯一齊落錯格，細啖飲少少水潤口就安全好多。'
+        },
+        {
+          id: 'quiz_3', moduleId: 5, type: 'quiz', quizNum: 3,
+          name: '防哽塞小測驗（第 3 / 3 題）',
+          voice: '最後一題喇：食緊嘢嗰陣，應唔應該一邊講嘢、一邊吞嘢呢？',
+          options: [
+            { label: '唔應該，吞乾淨先至講嘢', correct: true, kw: ['唔應該', '吞乾淨', '吞完', '唔好'] },
+            { label: '應該，一路食一路傾計', correct: false, kw: ['應該', '傾計', '可以'] }
+          ],
+          okMsg: '滿分表現！講嘢嗰陣氣管會打開，所以一定要吞乾淨口入面嘅食物先至傾計！',
+          noMsg: '記住呀，講嘢時氣管會打開，一邊食一邊講容易濁親，吞乾淨先講就最安心。'
+        }
+      ];
+    }
+
+    function getLoopingDemoSVG(animType) {
+      const svgs = {
+        breathing: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="腹式呼吸循環示範">
+            <circle cx="100" cy="85" r="56" fill="#CCFBF1" class="anim-lung"/>
+            <path d="M100 32 L100 72 M100 56 C78 56 64 74 64 96 C64 114 78 122 92 118 C96 116 98 108 98 95 M100 56 C122 56 136 74 136 96 C136 114 122 122 108 118 C104 116 102 108 102 95"
+                  fill="#0D9488" fill-opacity="0.22" stroke="#0D9488" stroke-width="4" stroke-linecap="round" class="anim-lung"/>
+            <path d="M90 22 L100 12 L110 22" fill="none" stroke="#0F766E" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div class="demo-caption">循環示範：慢慢深吸氣（脹起）→ 緩慢呼氣（收縮）</div>`,
+        shoulders: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="縮膊放鬆循環示範">
+            <circle cx="100" cy="52" r="28" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+            <circle cx="90" cy="48" r="3" fill="#1E293B"/>
+            <circle cx="110" cy="48" r="3" fill="#1E293B"/>
+            <path d="M92 62 Q100 68 108 62" stroke="#9A3412" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+            <g class="anim-shoulders">
+              <path d="M42 132 Q62 94 100 94 Q138 94 158 132" fill="#CCFBF1" stroke="#0D9488" stroke-width="4.5" stroke-linecap="round"/>
+              <path d="M55 86 L55 70 M49 76 L55 70 L61 76" stroke="#F97316" stroke-width="3" fill="none" stroke-linecap="round"/>
+              <path d="M145 86 L145 70 M139 76 L145 70 L151 76" stroke="#F97316" stroke-width="3" fill="none" stroke-linecap="round"/>
+            </g>
+          </svg>
+          <div class="demo-caption">循環示範：吸氣向上縮起膊頭 → 呼氣自然放鬆下垂</div>`,
+        neck: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="轉頸放鬆循環示範">
+            <path d="M55 138 Q100 112 145 138" fill="#CCFBF1" stroke="#0D9488" stroke-width="4" stroke-linecap="round"/>
+            <g class="anim-neck-head">
+              <rect x="92" y="92" width="16" height="22" rx="6" fill="#FDE68A" stroke="#D97706" stroke-width="2.5"/>
+              <circle cx="100" cy="62" r="32" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+              <circle cx="88" cy="56" r="3.5" fill="#1E293B"/>
+              <circle cx="112" cy="56" r="3.5" fill="#1E293B"/>
+              <path d="M90 73 Q100 80 110 73" stroke="#9A3412" stroke-width="3" stroke-linecap="round" fill="none"/>
+            </g>
+          </svg>
+          <div class="demo-caption">循環示範：頭頸緩慢向左、向右輕柔舒展</div>`,
+        lips: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="嘟嘴與咧嘴笑循環示範">
+            <circle cx="100" cy="75" r="56" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+            <circle cx="80" cy="58" r="4.5" fill="#1E293B"/>
+            <circle cx="120" cy="58" r="4.5" fill="#1E293B"/>
+            <ellipse cx="100" cy="92" rx="22" ry="12" fill="#FB7185" stroke="#BE123C" stroke-width="3.5" class="anim-lips"/>
+          </svg>
+          <div class="demo-caption">循環示範：向前嘟嘴「烏—」↔ 向外咧嘴「咿—」</div>`,
+        tongue: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="伸舌上下左右運動示範">
+            <circle cx="100" cy="72" r="54" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+            <circle cx="80" cy="56" r="4" fill="#1E293B"/>
+            <circle cx="120" cy="56" r="4" fill="#1E293B"/>
+            <ellipse cx="100" cy="88" rx="22" ry="11" fill="#7F1D1D"/>
+            <path d="M88 88 Q100 120 112 88 Z" fill="#FB7185" stroke="#BE123C" stroke-width="2.5" class="anim-tongue"/>
+          </svg>
+          <div class="demo-caption">循環示範：舌頭向前伸出，再向左、右嘴角緩慢郁動</div>`,
+        swallow: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="用力吞嚥循環示範">
+            <path d="M68 25 C95 25 112 42 112 68 L112 135 M138 25 L138 135" fill="none" stroke="#0D9488" stroke-width="5" stroke-linecap="round"/>
+            <path d="M72 48 Q95 56 118 48" fill="none" stroke="#94A3B8" stroke-width="3" stroke-dasharray="4 4"/>
+            <circle cx="125" cy="40" r="11" fill="#F97316" class="anim-bolus"/>
+            <text x="20" y="85" font-size="13" font-weight="700" fill="#0F766E">咽喉用力</text>
+            <text x="20" y="103" font-size="13" font-weight="700" fill="#0F766E">向下推動</text>
+          </svg>
+          <div class="demo-caption">循環示範：舌根與咽喉用力，將口水順暢向下吞嚥</div>`,
+        pitch: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="假聲滑音循環示範">
+            <path d="M30 118 Q95 105 168 32" fill="none" stroke="#99F6E4" stroke-width="6" stroke-linecap="round"/>
+            <path d="M30 118 Q95 105 168 32" fill="none" stroke="#0D9488" stroke-width="3" stroke-dasharray="6 6"/>
+            <circle cx="38" cy="78" r="11" fill="#F97316" class="anim-pitch-dot"/>
+            <text x="20" y="138" font-size="12" font-weight="700" fill="#475569">低音「咿」</text>
+            <text x="128" y="24" font-size="12" font-weight="700" fill="#EA580C">高音「咿↑」</text>
+          </svg>
+          <div class="demo-caption">循環示範：聲調由低音順滑向上拉高「咿———」</div>`,
+        chintuck: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="縮下巴抗阻練習示範">
+            <g class="anim-chin">
+              <circle cx="95" cy="60" r="32" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+              <circle cx="109" cy="52" r="3.5" fill="#1E293B"/>
+              <path d="M104 72 L116 72" stroke="#9A3412" stroke-width="3" stroke-linecap="round"/>
+            </g>
+            <rect x="86" y="102" width="44" height="16" rx="8" fill="#14B8A6" stroke="#0F766E" stroke-width="2.5"/>
+            <path d="M108 134 L108 122 M102 127 L108 121 L114 127" stroke="#0F766E" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <text x="136" y="114" font-size="12" font-weight="700" fill="#0F766E">手托輕頂</text>
+          </svg>
+          <div class="demo-caption">循環示範：下巴微微向內縮，與手掌輕柔抗阻</div>`,
+        cough: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="主動清喉氣流示範">
+            <circle cx="62" cy="78" r="32" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+            <circle cx="72" cy="68" r="3.5" fill="#1E293B"/>
+            <ellipse cx="88" cy="86" rx="7" ry="10" fill="#BE123C"/>
+            <g class="anim-cough-ring">
+              <path d="M102 68 Q116 78 102 88" fill="none" stroke="#0D9488" stroke-width="4" stroke-linecap="round"/>
+              <path d="M114 60 Q134 78 114 96" fill="none" stroke="#F97316" stroke-width="4" stroke-linecap="round"/>
+            </g>
+          </svg>
+          <div class="demo-caption">循環示範：吸氣後有力短促清喉「咳、咳！」</div>`,
+        massage: `
+          <svg width="200" height="150" viewBox="0 0 200 150" role="img" aria-label="輕拍按摩臉頰示範">
+            <circle cx="100" cy="75" r="52" fill="#FEF3C7" stroke="#F59E0B" stroke-width="3"/>
+            <path d="M78 60 Q85 55 92 60 M108 60 Q115 55 122 60" stroke="#1E293B" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <path d="M86 92 Q100 102 114 92" stroke="#9A3412" stroke-width="3" fill="none" stroke-linecap="round"/>
+            <circle cx="66" cy="82" r="14" fill="#14B8A6" fill-opacity="0.35" stroke="#0D9488" stroke-width="2.5" class="anim-massage-l"/>
+            <circle cx="134" cy="82" r="14" fill="#14B8A6" fill-opacity="0.35" stroke="#0D9488" stroke-width="2.5" class="anim-massage-r"/>
+          </svg>
+          <div class="demo-caption">循環示範：雙手手指腹輕柔打圈按摩兩邊面珠墩</div>`
+      };
+      return svgs[animType] || svgs.breathing;
+    }
+
+    /* ---------------------------------------------------------------------
+     * 4. GLOBAL STATE (Default speedMult = 1x; acousticBest = null!)
+     * --------------------------------------------------------------------- */
+    const state = {
+      view: 'home',
+      mode: 'normal',
+      speedMult: 1,            // ALWAYS 1x real timing by default (Fix 8)
+      debugMode: false,        // Unlocked only via 5-second brand long-press
+      isMuted: false,
+      largeFont: false,
+      simpleMode: false,
+      standaloneMode: false,
+
+      steps: [],
+      stepIndex: 0,
+      repIndex: 1,
+      phase: 'idle',           // 'intro' | 'action' | 'rest' | 'game_balloon' | 'game_candle' | 'checkin' | 'quiz'
+      timeRemaining: 0,
+      phaseTotal: 1,
+      totalElapsedSec: 0,
+      timerId: null,
+      isPaused: false,
+
+      checkinNote: '順暢良好',
+      quizScore: 0,
+      emergencyPauses: 0,
+
+      // FIX 1: STRICTLY NULL until actual >= 1.0s acoustic measurement occurs
+      acousticBest: null,
+
+      voiceObj: null,
+      speechToken: 0,
+      lastSpokenText: '',
+      lastFocusedBeforeModal: null
+    };
+
+    /* ---------------------------------------------------------------------
+     * 5. SCREEN WAKE LOCK API (Fix 6)
+     * --------------------------------------------------------------------- */
+    let wakeLockSentinel = null;
+
+    async function requestWakeLock() {
+      if (!('wakeLock' in navigator)) return;
+      try {
+        if (wakeLockSentinel) return;
+        wakeLockSentinel = await navigator.wakeLock.request('screen');
+        updateWakeLockUI(true);
+        wakeLockSentinel.addEventListener('release', () => {
+          wakeLockSentinel = null;
+          updateWakeLockUI(false);
+        });
+      } catch (e) {
+        // Silently degrade on unsupported or low-battery devices
+        updateWakeLockUI(false);
+      }
+    }
+
+    async function releaseWakeLock() {
+      if (!wakeLockSentinel) {
+        updateWakeLockUI(false);
+        return;
+      }
+      try {
+        await wakeLockSentinel.release();
+      } catch (e) {}
+      wakeLockSentinel = null;
+      updateWakeLockUI(false);
+    }
+
+    function updateWakeLockUI(active) {
+      const pill = document.getElementById('wakeLockPill');
+      if (!pill) return;
+      pill.classList.toggle('hidden', !active);
+      if (active) pill.removeAttribute('aria-hidden');
+      else pill.setAttribute('aria-hidden', 'true');
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && state.view === 'training' && !state.isPaused) {
+        requestWakeLock();
+      }
+    });
+
+    /* ---------------------------------------------------------------------
+     * 6. 5-SECOND LONG-PRESS DEBUG MODE ON BRAND ICON (Fix 8)
+     * --------------------------------------------------------------------- */
+    const debugHold = {
+      startTime: 0,
+      rafId: null,
+      triggered: false,
+      justUnlocked: false
+    };
+
+    function setupBrandLongPress() {
+      const btn = document.getElementById('brandTriggerBtn');
+      const ring = document.getElementById('brandHoldRing');
+      const circle = document.getElementById('brandHoldCircle');
+      const CIRC = 144.5;
+
+      function cancelHold() {
+        if (debugHold.rafId) {
+          cancelAnimationFrame(debugHold.rafId);
+          debugHold.rafId = null;
+        }
+        debugHold.startTime = 0;
+        ring.classList.remove('visible');
+        circle.style.strokeDashoffset = String(CIRC);
+      }
+
+      btn.addEventListener('pointerdown', (e) => {
+        if (e.button !== undefined && e.button !== 0) return;
+        debugHold.startTime = performance.now();
+        debugHold.triggered = false;
+
+        function step() {
+          if (!debugHold.startTime) return;
+          const elapsed = performance.now() - debugHold.startTime;
+          if (elapsed >= 1000) {
+            ring.classList.add('visible');
+            const prog = Math.min(1, (elapsed - 1000) / 4000);
+            circle.style.strokeDashoffset = String(CIRC * (1 - prog));
+          }
+          if (elapsed >= 5000 && !debugHold.triggered) {
+            debugHold.triggered = true;
+            debugHold.justUnlocked = true;
+            cancelHold();
+            toggleDebugMode();
+            return;
+          }
+          debugHold.rafId = requestAnimationFrame(step);
+        }
+        debugHold.rafId = requestAnimationFrame(step);
+      });
+
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => {
+        btn.addEventListener(ev, cancelHold);
+      });
+    }
+
+    function handleBrandClick() {
+      if (debugHold.justUnlocked) {
+        debugHold.justUnlocked = false;
+        return;
+      }
+      goHomeSafe();
+    }
+
+    function toggleDebugMode() {
+      state.debugMode = !state.debugMode;
+      const bar = document.getElementById('debugBar');
+      if (state.debugMode) {
+        bar.classList.remove('hidden');
+        bar.removeAttribute('aria-hidden');
+        showToast('🛠️ 已解鎖開發者測試模式（可切換 10x 快測與檢視 JSON）');
+        announceAria('已解鎖開發者測試模式', true);
+      } else {
+        disableDebugMode();
+      }
+    }
+
+    function disableDebugMode() {
+      state.debugMode = false;
+      state.speedMult = 1;
+      const bar = document.getElementById('debugBar');
+      bar.classList.add('hidden');
+      bar.setAttribute('aria-hidden', 'true');
+      const spBtn = document.getElementById('btnDebugSpeed');
+      spBtn.classList.remove('active');
+      spBtn.setAttribute('aria-pressed', 'false');
+      spBtn.textContent = '⏱️ 目前：1x 真實30分鐘（點擊轉 10x 快測）';
+      showToast('已關閉測試模式，恢復真實 1x 速度');
+      announceAria('已關閉開發者測試模式', false);
+    }
+
+    function toggleDebugSpeed() {
+      state.speedMult = state.speedMult === 1 ? 10 : 1;
+      const btn = document.getElementById('btnDebugSpeed');
+      const isFast = state.speedMult === 10;
+      btn.classList.toggle('active', isFast);
+      btn.setAttribute('aria-pressed', String(isFast));
+      btn.textContent = isFast
+        ? '⚡ 目前：10x 快測中（點擊回復 1x）'
+        : '⏱️ 目前：1x 真實30分鐘（點擊轉 10x 快測）';
+      showToast(isFast ? '已切換 10x 快速測試模式' : '已恢復 1x 真實 30 分鐘速度');
+    }
+
+    function openJsonDebugModal(triggerEl) {
+      const payload = {
+        mode: state.mode,
+        speedMult: state.speedMult,
+        stepIndex: state.stepIndex,
+        phase: state.phase,
+        repIndex: state.repIndex,
+        timeRemaining: state.timeRemaining,
+        acousticBest: state.acousticBest,
+        stepsCount: state.steps.length,
+        steps: state.steps.length ? state.steps : buildCourseSteps(state.mode)
+      };
+      document.getElementById('jsonPreContent').textContent = JSON.stringify(payload, null, 2);
+      openModal('jsonModal', triggerEl);
+    }
+
+    /* ---------------------------------------------------------------------
+     * 7. ACCESSIBLE MODALS & MEDICAL DISCLAIMER (Fix 2 & Fix 5)
+     * --------------------------------------------------------------------- */
+    function openModal(modalId, triggerEl = null) {
+      state.lastFocusedBeforeModal = triggerEl || document.activeElement;
+      const modal = document.getElementById(modalId);
+      modal.classList.remove('hidden');
+      modal.removeAttribute('aria-hidden');
+      const heading = modal.querySelector('h2[tabindex="-1"]') || modal.querySelector('button');
+      if (heading) setTimeout(() => heading.focus(), 30);
+    }
+
+    function closeModal(modalId) {
+      const modal = document.getElementById(modalId);
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      if (state.lastFocusedBeforeModal && typeof state.lastFocusedBeforeModal.focus === 'function') {
+        state.lastFocusedBeforeModal.focus();
+      }
+      state.lastFocusedBeforeModal = null;
+    }
+
+    function openDisclaimerModal(triggerEl = null, isReRead = false) {
+      const btn = document.getElementById('btnAcceptDisclaimer');
+      btn.textContent = isReRead ? '關閉提示' : '我已閱讀並明白，開始使用';
+      openModal('disclaimerModal', triggerEl);
+    }
+
+    function acceptDisclaimer() {
+      try { localStorage.setItem(DISCLAIMER_KEY, 'true'); } catch (e) {}
+      closeModal('disclaimerModal');
+      showToast('已確認安全與本機私隱提示，祝老友練習愉快！');
+    }
+
+    function announceAria(msg, assertive = false) {
+      const el = document.getElementById(assertive ? 'ariaAssertive' : 'ariaPolite');
+      if (!el) return;
+      el.textContent = '';
+      setTimeout(() => { el.textContent = msg; }, 20);
+    }
+
+    /* ---------------------------------------------------------------------
+     * 8. STARTUP, TTS & SECONDARY VOICE ASSIST
+     * --------------------------------------------------------------------- */
+    window.addEventListener('DOMContentLoaded', async () => {
+      loadPersistedSettings();
+      applySettingsToDOM();
+      setupBrandLongPress();
+
+      initVoices();
+      if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+        window.speechSynthesis.onvoiceschanged = initVoices;
+      }
+
+      await initDatabase();
+      await seedDemoReportsIfEmpty();
+      await checkAndShowResumeBanner();
+
+      // Blocking Medical Disclaimer on first launch (Apple Guideline 1.4.1)
+      let accepted = false;
+      try { accepted = localStorage.getItem(DISCLAIMER_KEY) === 'true'; } catch (e) {}
+      if (!accepted) {
+        openDisclaimerModal(null, false);
+      }
+    });
+
+    function initVoices() {
+      if (!window.speechSynthesis) return;
+      const list = window.speechSynthesis.getVoices();
+      if (!list || !list.length) return;
+      state.voiceObj =
+        list.find(v => /zh-hk|yue/i.test(v.lang)) ||
+        list.find(v => /sin-?ji|cantonese|hong kong|廣東|粵/i.test(v.name)) ||
+        list.find(v => /zh-tw/i.test(v.lang)) ||
+        list.find(v => /zh/i.test(v.lang)) || null;
+    }
+
+    function speak(text, onEnd = null) {
+      state.lastSpokenText = text;
+      const subTraining = document.getElementById('trainingSubtitle');
+      const subScreen = document.getElementById('screeningSubtitle');
+      if (state.view === 'training' && subTraining) subTraining.textContent = text;
+      if (state.view === 'screening' && subScreen) subScreen.textContent = text;
+      announceAria(text, false);
+
+      if (!window.speechSynthesis || state.isMuted) {
+        const tok = ++state.speechToken;
+        if (onEnd) {
+          setTimeout(() => {
+            if (tok === state.speechToken && !state.isPaused) onEnd();
+          }, state.speedMult > 1 ? 450 : 1800);
+        }
+        return;
+      }
+
+      try {
+        window.speechSynthesis.cancel();
+        const tok = ++state.speechToken;
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = state.voiceObj ? state.voiceObj.lang : 'zh-HK';
+        if (state.voiceObj) u.voice = state.voiceObj;
+        u.rate = 0.95;
+        u.onend = () => { if (tok === state.speechToken && !state.isPaused && onEnd) onEnd(); };
+        u.onerror = () => { if (tok === state.speechToken && !state.isPaused && onEnd) onEnd(); };
+        window.speechSynthesis.speak(u);
+      } catch (e) {
+        if (onEnd) setTimeout(onEnd, 600);
+      }
+    }
+
+    function stopSpeech() {
+      state.speechToken++;
+      if (window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch (e) {}
+      }
+    }
+
+    function replayVoice() {
+      if (state.lastSpokenText) speak(state.lastSpokenText);
+    }
+
+    // Secondary Optional Voice Assist
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let auxRec = null;
+
+    function triggerAuxVoice(context) {
+      if (!SpeechRec) {
+        showToast('此瀏覽器未支援語音收音，直接撳大掣就最方便！');
+        return;
+      }
+      if (auxRec) {
+        try { auxRec.abort(); } catch (e) {}
+        auxRec = null;
+      }
+      const btnId = context === 'home' ? 'btnAuxVoiceHome' :
+                    context === 'screening' ? 'btnAuxVoiceScreen' :
+                    context === 'checkin' ? 'btnAuxVoiceCheckin' : 'btnAuxVoiceQuiz';
+      const btn = document.getElementById(btnId);
+      try {
+        const rec = new SpeechRec();
+        rec.lang = 'yue-Hant-HK';
+        auxRec = rec;
+        if (btn) btn.classList.add('listening');
+        showToast('🎤 聽緊你講嘢...');
+
+        rec.onresult = (ev) => {
+          const txt = ev.results[0][0].transcript;
+          showToast(`聽到：「${txt}」`);
+          if (context === 'home') {
+            if (/報告|紀錄|趨勢/.test(txt)) openClinicalDashboard();
+            else if (/攰|輕量/.test(txt)) startFlowToScreening('gentle');
+            else startFlowToScreening('normal');
+          } else if (context === 'screening') {
+            if (/發燒|咳|痛/.test(txt)) confirmScreening('stop');
+            else if (/攰|食完|食飽/.test(txt)) confirmScreening('gentle');
+            else confirmScreening('normal');
+          } else if (context === 'checkin') {
+            if (/卡|痛|唔舒服|停/.test(txt)) submitCheckin('感到卡住或不適，已暫停');
+            else if (/乾|水|唞/.test(txt)) submitCheckin('略感口乾，已加長休息');
+            else submitCheckin('順暢良好，口水充足');
+          } else if (context === 'quiz') {
+            const step = state.steps[state.stepIndex];
+            if (step && step.type === 'quiz') {
+              const idx = step.options.findIndex(o => o.kw.some(k => txt.includes(k)));
+              if (idx >= 0) answerQuiz(idx);
+              else showToast('未聽清楚，可以直接撳上面個答案大掣');
+            }
+          }
+        };
+        rec.onerror = () => showToast('未收到聲音，請直接撳大掣操作');
+        rec.onend = () => { if (btn) btn.classList.remove('listening'); };
+        rec.start();
+      } catch (e) {
+        if (btn) btn.classList.remove('listening');
+        showToast('無法開啟咪高峰，請直接撳大掣操作');
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+     * 9. PERSISTED SETTINGS TOGGLES (Fix 4)
+     * --------------------------------------------------------------------- */
+    function toggleLargeFont() {
+      state.largeFont = !state.largeFont;
+      savePersistedSettings();
+      applySettingsToDOM();
+      showToast(state.largeFont ? '已開啟 18px+ 大字模式（已自動記住）' : '已恢復標準字體');
+    }
+
+    function toggleSimplifiedMode() {
+      state.simpleMode = !state.simpleMode;
+      savePersistedSettings();
+      applySettingsToDOM();
+      showToast(state.simpleMode ? '已切換簡化模式（已自動記住）' : '已切回完整模式');
+    }
+
+    function toggleMute() {
+      state.isMuted = !state.isMuted;
+      if (state.isMuted) stopSpeech();
+      savePersistedSettings();
+      applySettingsToDOM();
+      showToast(state.isMuted ? '已靜音（保留字幕引導）' : '已開啟廣東話語音引導');
+    }
+
+    let toastT = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastT);
+      toastT = setTimeout(() => el.classList.remove('show'), 2800);
+    }
+
+    /* ---------------------------------------------------------------------
+     * 10. HIGH-PRECISION CHECKPOINT RESUME (Fix 7)
+     * --------------------------------------------------------------------- */
+    async function saveCheckpoint() {
+      if (state.standaloneMode || !state.steps.length) return;
+      const step = state.steps[state.stepIndex];
+      if (!step) return;
+      const mod = MODULES.find(m => m.id === step.moduleId) || MODULES[0];
+
+      await dbPut('checkpoints', {
+        id: 'latest',
+        mode: state.mode,
+        stepIndex: state.stepIndex,
+        totalSteps: state.steps.length,
+        moduleTitle: mod.title,
+        stepName: step.name,
+        phase: state.phase,
+        currentRep: state.repIndex,
+        totalReps: step.reps || 1,
+        timeRemaining: state.timeRemaining,
+        phaseTotal: state.phaseTotal,
+        totalElapsedSec: state.totalElapsedSec,
+        balloonCount: balloonState.completed,
+        checkinNote: state.checkinNote,
+        quizScore: state.quizScore,
+        emergencyPauses: state.emergencyPauses,
+        acousticBest: state.acousticBest,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    async function clearCheckpoint() {
+      await dbDelete('checkpoints', 'latest');
+    }
+
+    async function checkAndShowResumeBanner() {
+      const saved = await dbGet('checkpoints', 'latest');
+      const banner = document.getElementById('resumeBanner');
+      if (saved && saved.stepIndex < saved.totalSteps) {
+        const phaseTxt = saved.phase === 'action' ? `第 ${saved.currentRep}/${saved.totalReps} 組・動作剩餘 ${saved.timeRemaining} 秒` :
+                         saved.phase === 'rest' ? `第 ${saved.currentRep}/${saved.totalReps} 組・休息剩餘 ${saved.timeRemaining} 秒` :
+                         saved.phase === 'game_balloon' ? `氣球遊戲・已完成 ${saved.balloonCount || 0} 個` :
+                         `進度第 ${saved.stepIndex + 1} / ${saved.totalSteps} 步`;
+
+        document.getElementById('resumeTitle').textContent =
+          `上次停喺：${saved.stepName}（${phaseTxt}）`;
+        const dt = new Date(saved.updatedAt).toLocaleString('zh-HK', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        document.getElementById('resumeMeta').textContent =
+          `${saved.moduleTitle} · 儲存於 ${dt}`;
+        banner.classList.remove('hidden');
+        banner.removeAttribute('aria-hidden');
+      } else {
+        banner.classList.add('hidden');
+        banner.setAttribute('aria-hidden', 'true');
+      }
+    }
+
+    async function resumeSavedSession() {
+      const saved = await dbGet('checkpoints', 'latest');
+      if (!saved) {
+        startFlowToScreening('normal');
+        return;
+      }
+      state.standaloneMode = false;
+      state.mode = saved.mode || 'normal';
+      state.steps = buildCourseSteps(state.mode);
+      state.stepIndex = Math.min(saved.stepIndex || 0, state.steps.length - 1);
+      state.repIndex = saved.currentRep || 1;
+      state.phase = saved.phase || 'intro';
+      state.timeRemaining = saved.timeRemaining || 0;
+      state.phaseTotal = saved.phaseTotal || 1;
+      state.totalElapsedSec = saved.totalElapsedSec || 0;
+      state.checkinNote = saved.checkinNote || '順暢良好';
+      state.quizScore = saved.quizScore || 0;
+      state.emergencyPauses = saved.emergencyPauses || 0;
+      state.acousticBest = saved.acousticBest || null;
+
+      switchView('training');
+      await requestWakeLock();
+      showToast(`已精準接續：${saved.stepName}`);
+      renderCurrentStep({
+        isResume: true,
+        resumePhase: saved.phase,
+        resumeRep: saved.currentRep || 1,
+        resumeTime: saved.timeRemaining || 0,
+        resumeTotal: saved.phaseTotal || 1,
+        resumeBalloonCount: saved.balloonCount || 0
+      });
+    }
+
+    async function discardAndStartFresh() {
+      await clearCheckpoint();
+      const banner = document.getElementById('resumeBanner');
+      banner.classList.add('hidden');
+      banner.setAttribute('aria-hidden', 'true');
+      showToast('已清除舊進度，可以重新開始！');
+    }
+
+    /* ---------------------------------------------------------------------
+     * 11. VIEW SWITCHING WITH VOICEOVER FOCUS MANAGEMENT (Fix 5)
+     * --------------------------------------------------------------------- */
+    function switchView(v) {
+      state.view = v;
+      const map = {
+        home: { id: 'viewHome', heading: 'homeHeading' },
+        screening: { id: 'viewScreening', heading: 'screeningHeading' },
+        training: { id: 'viewTraining', heading: 'stepTitle' },
+        report: { id: 'viewReport', heading: 'reportHeading' }
+      };
+
+      Object.keys(map).forEach(key => {
+        const el = document.getElementById(map[key].id);
+        if (!el) return;
+        const isActive = key === v;
+        el.classList.toggle('hidden', !isActive);
+        if (isActive) el.removeAttribute('aria-hidden');
+        else el.setAttribute('aria-hidden', 'true');
+      });
+
+      const dock = document.getElementById('bottomDock');
+      if (v === 'training') {
+        dock.classList.remove('hidden');
+        dock.removeAttribute('aria-hidden');
+      } else {
+        dock.classList.add('hidden');
+        dock.setAttribute('aria-hidden', 'true');
+        cleanupAllTrainingLoops();
+        releaseWakeLock();
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Move programmatic focus to active view's primary heading for VoiceOver
+      const targetHeading = document.getElementById(map[v].heading);
+      if (targetHeading) {
+        setTimeout(() => targetHeading.focus(), 60);
+      }
+    }
+
+    async function goHomeSafe() {
+      stopSpeech();
+      cleanupAllTrainingLoops();
+      await releaseWakeLock();
+      switchView('home');
+      await checkAndShowResumeBanner();
+    }
+
+    function openQuickGameMenu() {
+      const card = document.getElementById('quickGameCard');
+      const btn = document.getElementById('btnToggleQuickGames');
+      const willShow = card.classList.contains('hidden');
+      card.classList.toggle('hidden', !willShow);
+      if (willShow) {
+        card.removeAttribute('aria-hidden');
+        btn.setAttribute('aria-expanded', 'true');
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        card.setAttribute('aria-hidden', 'true');
+        btn.setAttribute('aria-expanded', 'false');
+      }
+    }
+
+    async function launchStandaloneStep(stepId) {
+      state.standaloneMode = true;
+      state.mode = 'normal';
+      const all = buildCourseSteps('normal');
+      const target = all.find(s => s.id === stepId);
+      state.steps = [target];
+      state.stepIndex = 0;
+      state.acousticBest = null; // Strictly null
+      switchView('training');
+      await requestWakeLock();
+      renderCurrentStep();
+    }
+
+    function startFlowToScreening(mode) {
+      state.standaloneMode = false;
+      state.mode = mode;
+      const stopBox = document.getElementById('safetyStopBox');
+      stopBox.classList.add('hidden');
+      stopBox.setAttribute('aria-hidden', 'true');
+      switchView('screening');
+      speak('老友，開始之前關心下你：今日精神好唔好？有冇發燒、咳得好犀利，或者啱啱食完飯呀？');
+    }
+
+    async function confirmScreening(result) {
+      stopSpeech();
+      if (result === 'stop') {
+        const box = document.getElementById('safetyStopBox');
+        box.classList.remove('hidden');
+        box.removeAttribute('aria-hidden');
+        box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        announceAria('今日先好好休息，唔好勉強練習', true);
+        speak('老友，發燒或者咳得犀利千祈唔好勉強，今日先好好休息，舒服返先再練過！');
+        return;
+      }
+      state.mode = result;
+      state.steps = buildCourseSteps(state.mode);
+      state.stepIndex = 0;
+      state.repIndex = 1;
+      state.totalElapsedSec = 0;
+      state.checkinNote = '順暢良好';
+      state.quizScore = 0;
+      state.emergencyPauses = 0;
+      state.acousticBest = null; // Strictly null
+
+      switchView('training');
+      await requestWakeLock();
+      await saveCheckpoint();
+      renderCurrentStep();
+    }
+
+    /* ---------------------------------------------------------------------
+     * 12. TRAINING STATE MACHINE RENDERER
+     * --------------------------------------------------------------------- */
+    function cleanupAllTrainingLoops() {
+      if (state.timerId) { clearInterval(state.timerId); state.timerId = null; }
+      stopBalloonHold();
+      stopBalloonGameLoop();
+      stopBalloonMic();
+      stopCandleMic();
+      stopSimAh();
+      stopCandleCanvasLoop();
+    }
+
+    function renderStepper(activeModId) {
+      const el = document.getElementById('moduleStepper');
+      el.innerHTML = MODULES.map(m => {
+        const cls = m.id < activeModId ? 'done' : m.id === activeModId ? 'active' : '';
+        return `<div class="stepper-item ${cls}">${m.id < activeModId ? '✓ ' : ''}${m.short}</div>`;
+      }).join('');
+    }
+
+    async function renderCurrentStep(resumeOpts = null) {
+      cleanupAllTrainingLoops();
+      stopSpeech();
+      state.isPaused = false;
+      updatePauseDockUI();
+
+      const emBanner = document.getElementById('emergencyBanner');
+      emBanner.classList.add('hidden');
+      emBanner.setAttribute('aria-hidden', 'true');
+
+      if (state.stepIndex >= state.steps.length) {
+        await finalizeSessionAndOpenReport();
+        return;
+      }
+
+      const step = state.steps[state.stepIndex];
+      const mod = MODULES.find(m => m.id === step.moduleId) || MODULES[0];
+
+      renderStepper(step.moduleId);
+      document.getElementById('stepModuleTag').textContent = `階段 ${mod.id} · ${mod.title}`;
+      document.getElementById('stepTitle').textContent = step.name;
+      document.getElementById('stepCounterPill').textContent = `${state.stepIndex + 1} / ${state.steps.length}`;
+
+      ['subStandardExercise', 'subBalloonGame', 'subCandleGame', 'subCheckin', 'subQuiz']
+        .forEach(id => document.getElementById(id).classList.add('hidden'));
+
+      if (step.type === 'exercise') {
+        document.getElementById('subStandardExercise').classList.remove('hidden');
+        setupStandardExercise(step, resumeOpts);
+      } else if (step.type === 'game_balloon') {
+        document.getElementById('subBalloonGame').classList.remove('hidden');
+        setupBalloonGame(step, resumeOpts);
+      } else if (step.type === 'game_candle') {
+        document.getElementById('subCandleGame').classList.remove('hidden');
+        setupCandleGame(step);
+      } else if (step.type === 'checkin') {
+        state.phase = 'checkin';
+        document.getElementById('subCheckin').classList.remove('hidden');
+        document.getElementById('phasePill').textContent = '互動檢查';
+        await saveCheckpoint();
+        speak(step.voice);
+      } else if (step.type === 'quiz') {
+        state.phase = 'quiz';
+        document.getElementById('subQuiz').classList.remove('hidden');
+        setupQuizStep(step);
+      }
+    }
+
+    /* --- STANDARD EXERCISE ENGINE WITH HIGH-PRECISION RESUME --- */
+    function setupStandardExercise(step, resumeOpts) {
+      document.getElementById('demoAnimContainer').innerHTML = getLoopingDemoSVG(step.anim);
+      document.getElementById('exerciseTip').textContent = step.tip;
+
+      // Exact resume into mid-action or mid-rest if checkpoint had valid timeRemaining
+      if (resumeOpts && resumeOpts.isResume && (resumeOpts.resumePhase === 'action' || resumeOpts.resumePhase === 'rest') && resumeOpts.resumeTime > 0) {
+        state.repIndex = Math.min(resumeOpts.resumeRep, step.reps);
+        if (resumeOpts.resumePhase === 'action') {
+          startActionPhase(step, resumeOpts.resumeTime, resumeOpts.resumeTotal);
+        } else {
+          startRestPhase(step, resumeOpts.resumeTime, resumeOpts.resumeTotal);
+        }
+        return;
+      }
+
+      state.repIndex = 1;
+      state.phase = 'intro';
+      state.timeRemaining = 0;
+      document.getElementById('phasePill').textContent = '語音示範';
+      document.getElementById('btnManualStartOrNext').textContent = '▶️ 立即開始倒數';
+      updateRing(1, '準備', '🔊', `共 ${step.reps} 組`, '#0D9488');
+      saveCheckpoint();
+
+      speak(step.voice, () => {
+        if (!state.isPaused && state.phase === 'intro' && state.view === 'training') {
+          startActionPhase(step);
+        }
+      });
+    }
+
+    function handleExercisePrimaryBtn() {
+      const step = state.steps[state.stepIndex];
+      if (!step || step.type !== 'exercise') return;
+      if (state.phase === 'intro') {
+        stopSpeech();
+        startActionPhase(step);
+      } else {
+        completeCurrentStepAndAdvance();
+      }
+    }
+
+    function startActionPhase(step, overrideSec = null, overrideTotal = null) {
+      state.phase = 'action';
+      const defaultSec = Math.max(2, Math.round(step.actionSec / state.speedMult));
+      state.phaseTotal = overrideTotal || defaultSec;
+      state.timeRemaining = overrideSec !== null ? overrideSec : defaultSec;
+
+      document.getElementById('phasePill').textContent = `動作第 ${state.repIndex}/${step.reps} 組`;
+      document.getElementById('btnManualStartOrNext').textContent = '⏭️ 完成並進入下一步';
+      updateRing(state.timeRemaining / state.phaseTotal, '跟住做', `${state.timeRemaining}s`, `第 ${state.repIndex} / ${step.reps} 組`, '#059669');
+      announceAria(`開始動作，第 ${state.repIndex} 組`, false);
+      speak(step.actionCue);
+      saveCheckpoint();
+
+      runTimer(() => startRestPhase(step));
+    }
+
+    function startRestPhase(step, overrideSec = null, overrideTotal = null) {
+      state.phase = 'rest';
+      const isLast = state.repIndex >= step.reps;
+      const base = isLast ? Math.min(6, step.restSec) : step.restSec;
+      const defaultSec = Math.max(2, Math.round(base / state.speedMult));
+      state.phaseTotal = overrideTotal || defaultSec;
+      state.timeRemaining = overrideSec !== null ? overrideSec : defaultSec;
+
+      document.getElementById('phasePill').textContent = '唞氣休息';
+      updateRing(state.timeRemaining / state.phaseTotal, '唞一唞', `${state.timeRemaining}s`, isLast ? '準備下一個動作' : `準備第 ${state.repIndex + 1} 組`, '#F97316');
+      speak(step.restCue);
+      saveCheckpoint();
+
+      runTimer(() => {
+        if (isLast) {
+          completeCurrentStepAndAdvance();
+        } else {
+          state.repIndex++;
+          startActionPhase(step);
+        }
+      });
+    }
+
+    function runTimer(onDone) {
+      if (state.timerId) clearInterval(state.timerId);
+      state.timerId = setInterval(() => {
+        if (state.isPaused) return;
+        state.timeRemaining--;
+        state.totalElapsedSec++;
+        saveCheckpoint(); // Persist every second for exact resume
+
+        const ratio = Math.max(0, state.timeRemaining / state.phaseTotal);
+        const step = state.steps[state.stepIndex];
+        if (state.phase === 'action') {
+          updateRing(ratio, '跟住做', `${state.timeRemaining}s`, `第 ${state.repIndex} / ${step.reps} 組`, '#059669');
+        } else if (state.phase === 'rest') {
+          updateRing(ratio, '唞一唞', `${state.timeRemaining}s`, '放鬆呼吸', '#F97316');
+        }
+        if (state.timeRemaining <= 0) {
+          clearInterval(state.timerId);
+          state.timerId = null;
+          onDone();
+        }
+      }, 1000);
+    }
+
+    function updateRing(ratio, label, secText, repText, color) {
+      const circle = document.getElementById('ringCircle');
+      circle.style.strokeDashoffset = 326.72 * (1 - Math.max(0, Math.min(1, ratio)));
+      circle.style.stroke = color;
+      document.getElementById('ringLabel').textContent = label;
+      document.getElementById('ringSeconds').textContent = secText;
+      document.getElementById('ringRep').textContent = repText;
+    }
+
+    /* ---------------------------------------------------------------------
+     * 13. GAMIFIED MODULE 1: BALLOON INFLATION GAME
+     *     FIX 3: Strictly decoupled gameLoopId vs micLoopId!
+     * --------------------------------------------------------------------- */
+    const balloonState = {
+      progress: 0,
+      completed: 0,
+      target: 3,
+      holding: false,
+      gameLoopId: null,   // Dedicated to game physics & hold button
+
+      // Dedicated to optional microphone detection
+      micActive: false,
+      micBlowing: false,
+      micLoopId: null,
+      micStream: null,
+      audioCtx: null,
+      analyser: null
+    };
+
+    function setupBalloonGame(step, resumeOpts = null) {
+      state.phase = 'game_balloon';
+      balloonState.progress = 0;
+      balloonState.completed = (resumeOpts && resumeOpts.isResume) ? (resumeOpts.resumeBalloonCount || 0) : 0;
+      balloonState.target = step.targetBalloons || 3;
+      balloonState.holding = false;
+      balloonState.micBlowing = false;
+
+      document.getElementById('phasePill').textContent = '氣球遊戲進行中';
+      const nextBtn = document.getElementById('btnBalloonNext');
+      nextBtn.classList.toggle('hidden', balloonState.completed < balloonState.target);
+
+      updateBalloonVisuals(false);
+      saveCheckpoint();
+      speak(step.voice);
+
+      // Start dedicated game physics loop
+      stopBalloonGameLoop();
+      balloonState.gameLoopId = setInterval(tickBalloonGame, 50);
+    }
+
+    function stopBalloonGameLoop() {
+      if (balloonState.gameLoopId) {
+        clearInterval(balloonState.gameLoopId);
+        balloonState.gameLoopId = null;
+      }
+    }
+
+    function startBalloonHold(e) {
+      if (e) e.preventDefault();
+      balloonState.holding = true;
+    }
+
+    function stopBalloonHold() {
+      balloonState.holding = false;
+    }
+
+    function tickBalloonGame() {
+      if (state.isPaused || state.view !== 'training') return;
+      const step = state.steps[state.stepIndex];
+      if (!step || step.type !== 'game_balloon') return;
+
+      const active = balloonState.holding || (balloonState.micActive && balloonState.micBlowing);
+      const fillPerTick = state.speedMult > 1 ? 2.4 : 1.05;
+
+      if (active && balloonState.completed < balloonState.target) {
+        balloonState.progress = Math.min(100, balloonState.progress + fillPerTick);
+        if (balloonState.progress >= 100) {
+          balloonState.completed++;
+          balloonState.progress = 0;
+          balloonState.holding = false;
+          fireBalloonConfetti();
+          saveCheckpoint();
+          if (balloonState.completed >= balloonState.target) {
+            speak('好犀利呀老友！全部氣球都充爆晒，兩邊面珠墩好有力！可以按下面繼續下一步喇。');
+            document.getElementById('btnBalloonNext').classList.remove('hidden');
+          } else {
+            speak(`好叻！已經充爆第 ${balloonState.completed} 個氣球，唞啖氣再充下一個！`);
+          }
+        }
+      } else if (!active && balloonState.progress > 0) {
+        balloonState.progress = Math.max(0, balloonState.progress - 0.65);
+      }
+
+      updateBalloonVisuals(active);
+    }
+
+    function updateBalloonVisuals(isPuffing = false) {
+      const p = Math.round(balloonState.progress);
+      document.getElementById('balloonPercentText').textContent = `${p}%`;
+      document.getElementById('balloonMeterFill').style.width = `${p}%`;
+      document.getElementById('balloonProgressRole').setAttribute('aria-valuenow', String(p));
+      document.getElementById('balloonCountBadge').textContent = `已完成：${balloonState.completed} / ${balloonState.target} 個氣球`;
+
+      const scale = 0.38 + (p / 100) * 0.78;
+      const g = document.getElementById('balloonGroup');
+      if (g) g.setAttribute('transform', `translate(75, 130) scale(${scale.toFixed(2)})`);
+
+      const colors = ['#F97316', '#0D9488', '#EC4899'];
+      const body = document.getElementById('balloonBody');
+      if (body) body.setAttribute('fill', colors[balloonState.completed % colors.length]);
+
+      const cheekR = isPuffing ? 16 + (p / 100) * 8 : 10;
+      const cheekOp = isPuffing ? 0.78 : 0.3;
+      ['faceCheekL', 'faceCheekR'].forEach(id => {
+        const c = document.getElementById(id);
+        if (c) {
+          c.setAttribute('r', cheekR.toFixed(1));
+          c.setAttribute('fill-opacity', cheekOp);
+        }
+      });
+
+      const status = document.getElementById('balloonStatusText');
+      if (balloonState.completed >= balloonState.target) {
+        status.textContent = '🎉 全部氣球充氣成功！兩邊面珠墩表現一流！';
+      } else if (isPuffing) {
+        status.textContent = '💨 充氣中……合實嘴唇頂住，唔好漏氣呀！';
+      } else {
+        status.textContent = '合實嘴唇脹起面珠墩，長按下面個掣幫氣球充氣！';
+      }
+    }
+
+    async function toggleBalloonMic() {
+      if (balloonState.micActive) {
+        stopBalloonMic();
+        showToast('已關閉咪高峰偵測，可繼續長按橙色大掣充氣');
+        return;
+      }
+      try {
+        balloonState.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        balloonState.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = balloonState.audioCtx.createMediaStreamSource(balloonState.micStream);
+        balloonState.analyser = balloonState.audioCtx.createAnalyser();
+        balloonState.analyser.fftSize = 256;
+        src.connect(balloonState.analyser);
+        balloonState.micActive = true;
+
+        // Separate mic polling loop (completely independent of gameLoopId)
+        if (balloonState.micLoopId) clearInterval(balloonState.micLoopId);
+        balloonState.micLoopId = setInterval(() => {
+          if (!balloonState.micActive || !balloonState.analyser) return;
+          const arr = new Uint8Array(balloonState.analyser.frequencyBinCount);
+          balloonState.analyser.getByteTimeDomainData(arr);
+          let sum = 0;
+          for (let i = 0; i < arr.length; i++) {
+            const v = (arr[i] - 128) / 128;
+            sum += v * v;
+          }
+          balloonState.micBlowing = Math.sqrt(sum / arr.length) > 0.055;
+        }, 50);
+
+        const btn = document.getElementById('btnBalloonMic');
+        btn.textContent = '🟢 咪高峰偵測中（點擊關閉）';
+        btn.setAttribute('aria-pressed', 'true');
+        showToast('已開啟咪高峰吹氣偵測（只在本機處理）');
+      } catch (e) {
+        showToast('未取得咪高峰權限，可直接長按橙色大掣充氣！');
+      }
+    }
+
+    // FIX 3: stopBalloonMic() ONLY stops mic resources & micLoopId — NEVER clears gameLoopId!
+    function stopBalloonMic() {
+      balloonState.micActive = false;
+      balloonState.micBlowing = false;
+      if (balloonState.micLoopId) {
+        clearInterval(balloonState.micLoopId);
+        balloonState.micLoopId = null;
+      }
+      if (balloonState.micStream) {
+        balloonState.micStream.getTracks().forEach(t => t.stop());
+        balloonState.micStream = null;
+      }
+      if (balloonState.audioCtx) {
+        try { balloonState.audioCtx.close(); } catch (e) {}
+        balloonState.audioCtx = null;
+      }
+      balloonState.analyser = null;
+      const btn = document.getElementById('btnBalloonMic');
+      if (btn) {
+        btn.textContent = '🎙️ 開啟咪高峰吹氣偵測（選用）';
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    function fireBalloonConfetti() {
+      const canvas = document.getElementById('balloonConfettiCanvas');
+      if (!canvas) return;
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+      const ctx = canvas.getContext('2d');
+      const particles = Array.from({ length: 36 }, () => ({
+        x: canvas.width * 0.62, y: canvas.height * 0.45,
+        vx: (Math.random() - 0.5) * 9, vy: (Math.random() - 0.7) * 9,
+        color: ['#F97316', '#0D9488', '#FACC15', '#EC4899', '#38BDF8'][Math.floor(Math.random() * 5)],
+        size: 5 + Math.random() * 5, life: 45
+      }));
+      function anim() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let alive = false;
+        particles.forEach(p => {
+          if (p.life > 0) {
+            alive = true;
+            p.x += p.vx; p.y += p.vy; p.vy += 0.22; p.life--;
+            ctx.globalAlpha = p.life / 45;
+            ctx.fillStyle = p.color;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+          }
+        });
+        ctx.globalAlpha = 1;
+        if (alive) requestAnimationFrame(anim);
+      }
+      anim();
+    }
+
+    /* ---------------------------------------------------------------------
+     * 14. GAMIFIED MODULE 2: CANDLE BLOWING & STRICT ACOUSTIC MEASUREMENT
+     * --------------------------------------------------------------------- */
+    const DB_THRESHOLD = 55;
+    const MIN_VALID_MPT_SEC = 1.0;
+
+    const candle = {
+      flameHealth: 100,
+      extinguished: false,
+      currentDb: 0,
+      simActive: false,
+      simPhase: 0,
+      micActive: false,
+      micStream: null,
+      audioCtx: null,
+      analyser: null,
+      sampleInterval: null,
+      rafId: null,
+
+      boutSamples: [],
+      boutStartMs: 0,
+      inPhonation: false,
+      smokes: [],
+      sparks: []
+    };
+
+    function setupCandleGame(step) {
+      state.phase = 'game_candle';
+      document.getElementById('phasePill').textContent = '聲學評估遊戲';
+      resetCandleFlame(false);
+      updateCandleTelemetryUI();
+      saveCheckpoint();
+      speak(step.voice);
+
+      if (candle.sampleInterval) clearInterval(candle.sampleInterval);
+      candle.sampleInterval = setInterval(sampleAcoustic50ms, 50);
+
+      resizeCandleCanvas();
+      window.addEventListener('resize', resizeCandleCanvas);
+      startCandleCanvasLoop();
+    }
+
+    function updateCandleTelemetryUI() {
+      const b = state.acousticBest;
+      document.getElementById('liveMptVal').textContent = b ? `${b.mptSec.toFixed(1)} 秒` : '未量度';
+      document.getElementById('liveCvVal').textContent = b ? `${b.volumeCv.toFixed(1)} %` : '未量度';
+      document.getElementById('liveMeanDbVal').textContent = b ? `${b.meanDb.toFixed(1)} dB` : '未量度';
+      document.getElementById('livePeakDbVal').textContent = b ? `${b.peakDb.toFixed(1)} dB` : '未量度';
+    }
+
+    function resetCandleFlame(announce = true) {
+      candle.flameHealth = 100;
+      candle.extinguished = false;
+      candle.smokes = [];
+      candle.sparks = [];
+      candle.inPhonation = false;
+      candle.boutSamples = [];
+      document.getElementById('candlePromptStatus').textContent = '深吸一口氣，發「啊———」長音吹熄支蠟燭！';
+      if (announce) showToast('蠟燭已重新點燃，可以再試一次！');
+    }
+
+    function resizeCandleCanvas() {
+      const c = document.getElementById('candleCanvas');
+      if (!c || !c.parentElement) return;
+      c.width = c.parentElement.clientWidth || 320;
+      c.height = c.parentElement.clientHeight || 240;
+    }
+
+    async function toggleCandleMic() {
+      if (candle.micActive) {
+        stopCandleMic();
+        showToast('已關閉咪高峰');
+        return;
+      }
+      try {
+        candle.micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        candle.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const src = candle.audioCtx.createMediaStreamSource(candle.micStream);
+        candle.analyser = candle.audioCtx.createAnalyser();
+        candle.analyser.fftSize = 512;
+        src.connect(candle.analyser);
+        candle.micActive = true;
+        const btn = document.getElementById('btnCandleMic');
+        btn.textContent = '🟢 咪高峰收音中（點擊關閉）';
+        btn.setAttribute('aria-pressed', 'true');
+        showToast('已開啟咪高峰（本機即時處理，絕不上傳）');
+      } catch (e) {
+        showToast('未取得咪高峰權限，可長按右邊「模擬發聲測試」體驗！');
+      }
+    }
+
+    function stopCandleMic() {
+      candle.micActive = false;
+      if (candle.micStream) {
+        candle.micStream.getTracks().forEach(t => t.stop());
+        candle.micStream = null;
+      }
+      if (candle.audioCtx) {
+        try { candle.audioCtx.close(); } catch (e) {}
+        candle.audioCtx = null;
+      }
+      candle.analyser = null;
+      const btn = document.getElementById('btnCandleMic');
+      if (btn) {
+        btn.textContent = '🎙️ 開啟咪高峰吹蠟燭';
+        btn.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    function startSimAh(e) {
+      if (e) e.preventDefault();
+      candle.simActive = true;
+    }
+
+    function stopSimAh() {
+      candle.simActive = false;
+    }
+
+    function sampleAcoustic50ms() {
+      if (state.isPaused || state.view !== 'training') return;
+
+      let db = 0;
+      let source = null;
+
+      if (candle.simActive) {
+        candle.simPhase += 0.35;
+        db = 68.5 + Math.sin(candle.simPhase) * 3.2 + (Math.random() - 0.5) * 4.5;
+        source = 'sim';
+      } else if (candle.micActive && candle.analyser) {
+        const data = new Uint8Array(candle.analyser.frequencyBinCount);
+        candle.analyser.getByteTimeDomainData(data);
+        let sumSq = 0;
+        for (let i = 0; i < data.length; i++) {
+          const norm = (data[i] - 128) / 128;
+          sumSq += norm * norm;
+        }
+        const rms = Math.sqrt(sumSq / data.length);
+        db = rms > 0.004 ? Math.min(95, Math.max(30, 32 + Math.log10(rms * 100 + 1) * 32)) : 0;
+        source = 'mic';
+      }
+
+      candle.currentDb = db;
+      document.getElementById('liveDbDisplay').textContent = `${Math.round(db)} dB`;
+      document.getElementById('candleDbFill').style.width = `${Math.min(100, db)}%`;
+
+      if (db >= DB_THRESHOLD && source) {
+        if (!candle.inPhonation) {
+          candle.inPhonation = true;
+          candle.boutStartMs = performance.now();
+          candle.boutSamples = [];
+        }
+        candle.boutSamples.push(db);
+
+        const durSec = (performance.now() - candle.boutStartMs) / 1000;
+
+        // FIX 1: Only record acousticBest if valid phonation >= 1.0s
+        if (durSec >= MIN_VALID_MPT_SEC) {
+          const n = candle.boutSamples.length;
+          const mean = candle.boutSamples.reduce((a, b) => a + b, 0) / n;
+          const variance = candle.boutSamples.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / n;
+          const sd = Math.sqrt(variance);
+          const cv = mean > 0 ? (sd / mean) * 100 : 0;
+          const peak = Math.max(...candle.boutSamples);
+
+          if (!state.acousticBest || durSec >= state.acousticBest.mptSec) {
+            state.acousticBest = {
+              mptSec: Number(durSec.toFixed(1)),
+              volumeCv: Number(cv.toFixed(1)),
+              meanDb: Number(mean.toFixed(1)),
+              peakDb: Number(peak.toFixed(1)),
+              source: source
+            };
+            updateCandleTelemetryUI();
+          }
+        }
+
+        if (!candle.extinguished) {
+          const drain = (state.speedMult > 1 ? 1.8 : 0.72) * (1 + (db - DB_THRESHOLD) / 40);
+          candle.flameHealth = Math.max(0, candle.flameHealth - drain);
+          document.getElementById('candlePromptStatus').textContent =
+            `🔥 把聲好穩定！繼續「啊———」（火焰剩餘 ${Math.round(candle.flameHealth)}%）`;
+
+          if (candle.flameHealth <= 0) {
+            candle.extinguished = true;
+            spawnCandleCelebration();
+            const mptTxt = state.acousticBest ? `${state.acousticBest.mptSec.toFixed(1)} 秒` : '已吹熄';
+            document.getElementById('candlePromptStatus').textContent =
+              `🎉 成功吹熄蠟燭！發聲持久度 ${mptTxt}`;
+            speak(`好犀利呀老友！成功吹熄支蠟燭！表現好穩定！`);
+            saveCheckpoint();
+          }
+        }
+      } else {
+        candle.inPhonation = false;
+      }
+    }
+
+    function spawnCandleCelebration() {
+      const c = document.getElementById('candleCanvas');
+      if (!c) return;
+      const cx = c.width / 2;
+      const cy = c.height * 0.42;
+      for (let i = 0; i < 16; i++) {
+        candle.smokes.push({
+          x: cx + (Math.random() - 0.5) * 10, y: cy,
+          vx: 0.4 + Math.random() * 0.8, vy: -0.9 - Math.random() * 0.9,
+          r: 5 + Math.random() * 7, alpha: 0.7
+        });
+      }
+      for (let i = 0; i < 42; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = 2 + Math.random() * 5;
+        candle.sparks.push({
+          x: cx, y: cy - 10,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 1.5,
+          color: ['#FACC15', '#34D399', '#F97316', '#38BDF8', '#FB7185'][Math.floor(Math.random() * 5)],
+          life: 55
+        });
+      }
+    }
+
+    function startCandleCanvasLoop() {
+      stopCandleCanvasLoop();
+      let t = 0;
+      function draw() {
+        const c = document.getElementById('candleCanvas');
+        if (!c) return;
+        const ctx = c.getContext('2d');
+        const w = c.width, h = c.height;
+        t += 0.12;
+        ctx.clearRect(0, 0, w, h);
+
+        const cx = w / 2, cakeTopY = h * 0.72;
+        ctx.fillStyle = '#FDE68A';
+        ctx.beginPath(); ctx.roundRect(cx - 64, cakeTopY, 128, 44, 12); ctx.fill();
+        ctx.fillStyle = '#FB7185';
+        ctx.beginPath(); ctx.roundRect(cx - 66, cakeTopY - 6, 132, 18, 10); ctx.fill();
+
+        const candleTopY = cakeTopY - 62;
+        const grad = ctx.createLinearGradient(cx - 10, candleTopY, cx + 10, cakeTopY);
+        grad.addColorStop(0, '#FFFFFF'); grad.addColorStop(1, '#CCFBF1');
+        ctx.fillStyle = grad;
+        ctx.beginPath(); ctx.roundRect(cx - 10, candleTopY, 20, 62, 5); ctx.fill();
+
+        ctx.strokeStyle = '#334155'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx, candleTopY); ctx.lineTo(cx, candleTopY - 10); ctx.stroke();
+
+        if (!candle.extinguished) {
+          const blowStrength = Math.max(0, (candle.currentDb - 40) / 45);
+          const healthScale = 0.45 + (candle.flameHealth / 100) * 0.65;
+          const bendX = blowStrength * 26 + Math.sin(t * (1.8 + blowStrength * 3)) * (2 + blowStrength * 7);
+          const flameH = (44 * healthScale) * (1 - blowStrength * 0.25);
+          const flameW = 16 * healthScale;
+
+          const halo = ctx.createRadialGradient(cx + bendX * 0.4, candleTopY - 24, 4, cx, candleTopY - 24, 68 * healthScale);
+          halo.addColorStop(0, 'rgba(251, 146, 60, 0.55)'); halo.addColorStop(1, 'rgba(251, 146, 60, 0)');
+          ctx.fillStyle = halo;
+          ctx.beginPath(); ctx.arc(cx + bendX * 0.3, candleTopY - 24, 68 * healthScale, 0, Math.PI * 2); ctx.fill();
+
+          ctx.fillStyle = '#F97316';
+          ctx.beginPath();
+          ctx.moveTo(cx, candleTopY - 8);
+          ctx.quadraticCurveTo(cx - flameW, candleTopY - 18, cx + bendX, candleTopY - 10 - flameH);
+          ctx.quadraticCurveTo(cx + flameW + bendX * 0.5, candleTopY - 18, cx, candleTopY - 8);
+          ctx.fill();
+
+          ctx.fillStyle = '#FEF08A';
+          ctx.beginPath();
+          ctx.moveTo(cx, candleTopY - 10);
+          ctx.quadraticCurveTo(cx - flameW * 0.5, candleTopY - 16, cx + bendX * 0.7, candleTopY - 10 - flameH * 0.62);
+          ctx.quadraticCurveTo(cx + flameW * 0.5 + bendX * 0.3, candleTopY - 16, cx, candleTopY - 10);
+          ctx.fill();
+        } else {
+          candle.smokes.forEach(s => {
+            s.x += s.vx + Math.sin(t * 0.8) * 0.3; s.y += s.vy; s.r += 0.15; s.alpha = Math.max(0, s.alpha - 0.008);
+            if (s.alpha > 0) {
+              ctx.fillStyle = `rgba(203, 213, 225, ${s.alpha})`;
+              ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            }
+          });
+        }
+
+        candle.sparks.forEach(sp => {
+          if (sp.life > 0) {
+            sp.x += sp.vx; sp.y += sp.vy; sp.vy += 0.1; sp.life--;
+            ctx.globalAlpha = sp.life / 55;
+            ctx.fillStyle = sp.color;
+            ctx.beginPath(); ctx.arc(sp.x, sp.y, 3.5, 0, Math.PI * 2); ctx.fill();
+          }
+        });
+        ctx.globalAlpha = 1;
+
+        if (!candle.extinguished) {
+          const barW = 140, bx = cx - barW / 2;
+          ctx.fillStyle = 'rgba(255,255,255,0.16)';
+          ctx.beginPath(); ctx.roundRect(bx, 14, barW, 10, 5); ctx.fill();
+          ctx.fillStyle = '#F97316';
+          ctx.beginPath(); ctx.roundRect(bx, 14, barW * (candle.flameHealth / 100), 10, 5); ctx.fill();
+        }
+
+        candle.rafId = requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    function stopCandleCanvasLoop() {
+      if (candle.rafId) { cancelAnimationFrame(candle.rafId); candle.rafId = null; }
+      if (candle.sampleInterval) { clearInterval(candle.sampleInterval); candle.sampleInterval = null; }
+      window.removeEventListener('resize', resizeCandleCanvas);
+    }
+
+    async function finishCandleStep() {
+      await saveCheckpoint();
+      if (state.standaloneMode) {
+        await saveReportToDB();
+        await openClinicalDashboard();
+      } else {
+        completeCurrentStepAndAdvance();
+      }
+    }
+
+    /* ---------------------------------------------------------------------
+     * 15. CHECK-IN & QUIZ
+     * --------------------------------------------------------------------- */
+    async function submitCheckin(note) {
+      stopSpeech();
+      state.checkinNote = note;
+      if (note.includes('不適')) {
+        triggerEmergencyPause();
+        return;
+      }
+      if (note.includes('口乾')) {
+        state.steps.slice(state.stepIndex + 1).forEach(s => {
+          if (s.type === 'exercise') s.restSec += 5;
+        });
+        showToast('已自動加長之後嘅休息時間');
+        speak('明白，記得如果安全嘅話細啖飲少少溫水潤下喉嚨。我已經幫你加長咗休息時間，我哋繼續啦！', () => {
+          completeCurrentStepAndAdvance();
+        });
+      } else {
+        speak('太好喇！咁我哋繼續第四階段，保護氣道與吹蠟燭遊戲！', () => {
+          completeCurrentStepAndAdvance();
+        });
+      }
+    }
+
+    function setupQuizStep(step) {
+      document.getElementById('phasePill').textContent = `防哽塞問答 ${step.quizNum}/3`;
+      const fb = document.getElementById('quizFeedbackBox');
+      const nextBtn = document.getElementById('btnQuizNext');
+      fb.classList.add('hidden');
+      nextBtn.classList.add('hidden');
+
+      const box = document.getElementById('quizOptionsBox');
+      box.innerHTML = step.options.map((opt, idx) => `
+        <button id="qOpt_${idx}" class="btn btn-choice" onclick="answerQuiz(${idx})" aria-label="選項 ${idx === 0 ? 'A' : 'B'}：${opt.label}">
+          <span>${idx === 0 ? 'A. ' : 'B. '}${opt.label}</span>
+          <span aria-hidden="true">→</span>
+        </button>
+      `).join('');
+
+      saveCheckpoint();
+      speak(step.voice);
+    }
+
+    async function answerQuiz(idx) {
+      const step = state.steps[state.stepIndex];
+      if (!step || step.type !== 'quiz') return;
+      stopSpeech();
+
+      step.options.forEach((_, i) => {
+        const b = document.getElementById(`qOpt_${i}`);
+        if (b) b.disabled = true;
+      });
+
+      const chosen = step.options[idx];
+      const fb = document.getElementById('quizFeedbackBox');
+      fb.classList.remove('hidden');
+
+      if (chosen.correct) {
+        state.quizScore++;
+        fb.style.background = '#D1FAE5';
+        fb.style.color = '#065F46';
+        fb.textContent = '✅ ' + step.okMsg;
+        speak(step.okMsg);
+      } else {
+        fb.style.background = '#FEF3C7';
+        fb.style.color = '#92400E';
+        fb.textContent = '💡 ' + step.noMsg;
+        speak(step.noMsg);
+      }
+
+      document.getElementById('btnQuizNext').classList.remove('hidden');
+      await saveCheckpoint();
+    }
+
+    /* ---------------------------------------------------------------------
+     * 16. DOCK CONTROLS & ZERO-FAKE-DATA REPORT PERSISTENCE (Fix 1)
+     * --------------------------------------------------------------------- */
+    function completeCurrentStepAndAdvance() {
+      if (state.standaloneMode) {
+        goHomeSafe();
+        return;
+      }
+      state.stepIndex++;
+      renderCurrentStep();
+    }
+
+    function skipStep() {
+      stopSpeech();
+      completeCurrentStepAndAdvance();
+    }
+
+    async function togglePause() {
+      state.isPaused = !state.isPaused;
+      if (state.isPaused) {
+        stopSpeech();
+        await releaseWakeLock();
+        await saveCheckpoint();
+        document.getElementById('phasePill').textContent = '已暫停';
+        announceAria('已暫停訓練', true);
+      } else {
+        const em = document.getElementById('emergencyBanner');
+        em.classList.add('hidden');
+        em.setAttribute('aria-hidden', 'true');
+        await requestWakeLock();
+        document.getElementById('phasePill').textContent = '繼續進行';
+        announceAria('已恢復訓練', true);
+      }
+      updatePauseDockUI();
+    }
+
+    function updatePauseDockUI() {
+      document.getElementById('dockPauseIcon').textContent = state.isPaused ? '▶️' : '⏸️';
+      document.getElementById('dockPauseText').textContent = state.isPaused ? '繼續' : '暫停';
+    }
+
+    async function triggerEmergencyPause() {
+      state.isPaused = true;
+      state.emergencyPauses++;
+      stopSpeech();
+      await releaseWakeLock();
+      await saveCheckpoint();
+      updatePauseDockUI();
+
+      document.getElementById('phasePill').textContent = '安全暫停';
+      const b = document.getElementById('emergencyBanner');
+      b.classList.remove('hidden');
+      b.removeAttribute('aria-hidden');
+      b.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      announceAria('已安全暫停，請慢慢唞一唞氣', true);
+      speak('唔緊要老友，停低唞一唞先，慢慢咳乾淨，舒服返先再按繼續。');
+    }
+
+    async function resumeFromEmergency() {
+      const b = document.getElementById('emergencyBanner');
+      b.classList.add('hidden');
+      b.setAttribute('aria-hidden', 'true');
+      state.isPaused = false;
+      updatePauseDockUI();
+      await requestWakeLock();
+
+      const step = state.steps[state.stepIndex];
+      if (step && step.type === 'checkin') {
+        completeCurrentStepAndAdvance();
+      } else {
+        showToast('已恢復訓練進度');
+      }
+    }
+
+    async function finishEarlyAndReport() {
+      await finalizeSessionAndOpenReport();
+    }
+
+    // FIX 1: STRICT ZERO FAKE DATA — Save null if unmeasured!
+    async function saveReportToDB() {
+      const b = state.acousticBest;
+      const hasValidMeasurement = b && typeof b.mptSec === 'number' && b.mptSec >= MIN_VALID_MPT_SEC;
+
+      await dbAdd('session_reports', {
+        date: new Date().toISOString(),
+        durationMin: state.standaloneMode ? 5 : 30,
+        mode: state.mode,
+        mptSec: hasValidMeasurement ? b.mptSec : null,
+        volumeCv: hasValidMeasurement ? b.volumeCv : null,
+        meanDb: hasValidMeasurement ? b.meanDb : null,
+        peakDb: hasValidMeasurement ? b.peakDb : null,
+        acousticSource: hasValidMeasurement ? b.source : null,
+        quizScore: state.quizScore,
+        quizTotal: 3,
+        checkinNote: state.standaloneMode ? '單項聲學評估練習' : state.checkinNote,
+        isDemo: false
+      });
+    }
+
+    async function finalizeSessionAndOpenReport() {
+      cleanupAllTrainingLoops();
+      await releaseWakeLock();
+      await saveReportToDB();
+      await clearCheckpoint();
+      await openClinicalDashboard();
+      speak('恭喜老友完成今日嘅吞嚥訓練！你嘅真實訓練紀錄已經儲存喺本機治療師報告。');
+    }
+
+    /* ---------------------------------------------------------------------
+     * 17. THERAPIST CLINICAL DASHBOARD (Handles null cleanly without fake 0s)
+     * --------------------------------------------------------------------- */
+    async function openClinicalDashboard() {
+      switchView('report');
+      const reports = await dbGetAll('session_reports');
+      reports.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      renderClinicalKPIs(reports);
+      renderMptChart(reports);
+      renderCvChart(reports);
+      renderReportsTable(reports);
+    }
+
+    function renderClinicalKPIs(reports) {
+      if (!reports.length) {
+        document.getElementById('kpiMpt').textContent = '是次未量度';
+        document.getElementById('kpiCv').textContent = '是次未量度';
+        document.getElementById('kpiMeanDb').textContent = '是次未量度';
+        document.getElementById('kpiPeakDb').textContent = '峰值：未量度';
+        document.getElementById('kpiQuiz').textContent = '-- / 3';
+        return;
+      }
+      const latest = reports[reports.length - 1];
+
+      if (latest.mptSec !== null && latest.mptSec !== undefined) {
+        document.getElementById('kpiMpt').textContent = `${latest.mptSec.toFixed(1)} 秒`;
+        document.getElementById('kpiMptBench').textContent = latest.mptSec >= 10 ? '✓ 達標 (≥ 10.0 秒 良好)' : '持續鍛鍊中 (目標 ≥ 10 秒)';
+        document.getElementById('kpiMptBench').style.color = latest.mptSec >= 10 ? '#059669' : '#B45309';
+      } else {
+        document.getElementById('kpiMpt').textContent = '是次未量度';
+        document.getElementById('kpiMptBench').textContent = '未進行發聲量度';
+        document.getElementById('kpiMptBench').style.color = '#64748B';
+      }
+
+      if (latest.volumeCv !== null && latest.volumeCv !== undefined) {
+        document.getElementById('kpiCv').textContent = `${latest.volumeCv.toFixed(1)} %`;
+        document.getElementById('kpiCvBench').textContent = latest.volumeCv <= 12 ? '✓ 穩定 (≤ 12.0%)' : '波動稍大 (目標 ≤ 12%)';
+        document.getElementById('kpiCvBench').style.color = latest.volumeCv <= 12 ? '#059669' : '#B45309';
+      } else {
+        document.getElementById('kpiCv').textContent = '是次未量度';
+        document.getElementById('kpiCvBench').textContent = '未進行發聲量度';
+        document.getElementById('kpiCvBench').style.color = '#64748B';
+      }
+
+      if (latest.meanDb !== null && latest.meanDb !== undefined) {
+        document.getElementById('kpiMeanDb').textContent = `${latest.meanDb.toFixed(1)} dB`;
+        document.getElementById('kpiPeakDb').textContent = `峰值 ${latest.peakDb.toFixed(1)} dB`;
+      } else {
+        document.getElementById('kpiMeanDb').textContent = '是次未量度';
+        document.getElementById('kpiPeakDb').textContent = '峰值：未量度';
+      }
+
+      document.getElementById('kpiQuiz').textContent = `${latest.quizScore} / ${latest.quizTotal}`;
+      document.getElementById('kpiModeNote').textContent = latest.isDemo ? '示範基準紀錄' : '最新真實紀錄';
+    }
+
+    function renderMptChart(reports) {
+      const wrap = document.getElementById('chartMptWrap');
+      // Filter cleanly to ONLY measured data points (never plot null or 0)
+      const measured = reports.filter(r => typeof r.mptSec === 'number');
+      if (!measured.length) {
+        wrap.innerHTML = '<p style="color:var(--text-muted); padding:1rem; text-align:center;">暫無有效發聲持久度紀錄。開啟咪高峰完成「吹蠟燭」訓練後將自動繪製趨勢圖。</p>';
+        return;
+      }
+      const W = 680, H = 200, padL = 44, padR = 24, padT = 20, padB = 34;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+      const maxVal = Math.max(16, ...measured.map(r => r.mptSec + 2));
+
+      const xPos = (i) => measured.length === 1 ? padL + plotW / 2 : padL + (i / (measured.length - 1)) * plotW;
+      const yPos = (v) => padT + plotH - (v / maxVal) * plotH;
+      const targetY = yPos(10);
+
+      const pts = measured.map((r, i) => `${xPos(i).toFixed(1)},${yPos(r.mptSec).toFixed(1)}`).join(' ');
+      const circles = measured.map((r, i) => {
+        const cx = xPos(i).toFixed(1), cy = yPos(r.mptSec).toFixed(1);
+        const dLabel = new Date(r.date).toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric' });
+        return `
+          <circle cx="${cx}" cy="${cy}" r="5.5" fill="${r.isDemo ? '#94A3B8' : '#0D9488'}" stroke="#fff" stroke-width="2"/>
+          <text x="${cx}" y="${(yPos(r.mptSec) - 10).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#0F172A">${r.mptSec.toFixed(1)}s</text>
+          <text x="${cx}" y="${H - 10}" text-anchor="middle" font-size="11" fill="#64748B">${dLabel}</text>
+        `;
+      }).join('');
+
+      wrap.innerHTML = `
+        <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="發聲持久度趨勢圖，只顯示有效量度數據">
+          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#CBD5E1" stroke-width="1.5"/>
+          <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#CBD5E1" stroke-width="1.5"/>
+          <line x1="${padL}" y1="${targetY.toFixed(1)}" x2="${W - padR}" y2="${targetY.toFixed(1)}" stroke="#059669" stroke-width="1.8" stroke-dasharray="6 4"/>
+          <text x="${W - padR - 4}" y="${(targetY - 5).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="#059669">達標線 10s</text>
+          <text x="${padL - 8}" y="${padT + 4}" text-anchor="end" font-size="10" fill="#64748B">${Math.round(maxVal)}s</text>
+          <text x="${padL - 8}" y="${H - padB}" text-anchor="end" font-size="10" fill="#64748B">0s</text>
+          ${measured.length > 1 ? `<polyline fill="none" stroke="#0D9488" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>` : ''}
+          ${circles}
+        </svg>`;
+    }
+
+    function renderCvChart(reports) {
+      const wrap = document.getElementById('chartCvWrap');
+      const measured = reports.filter(r => typeof r.volumeCv === 'number');
+      if (!measured.length) {
+        wrap.innerHTML = '<p style="color:var(--text-muted); padding:1rem; text-align:center;">暫無有效音量穩定度紀錄。</p>';
+        return;
+      }
+      const W = 680, H = 200, padL = 44, padR = 24, padT = 20, padB = 34;
+      const plotW = W - padL - padR, plotH = H - padT - padB;
+      const maxVal = Math.max(24, ...measured.map(r => r.volumeCv + 3));
+
+      const xPos = (i) => measured.length === 1 ? padL + plotW / 2 : padL + (i / (measured.length - 1)) * plotW;
+      const yPos = (v) => padT + plotH - (v / maxVal) * plotH;
+      const bandTopY = yPos(12);
+      const bandH = (H - padB) - bandTopY;
+
+      const pts = measured.map((r, i) => `${xPos(i).toFixed(1)},${yPos(r.volumeCv).toFixed(1)}`).join(' ');
+      const circles = measured.map((r, i) => {
+        const cx = xPos(i).toFixed(1), cy = yPos(r.volumeCv).toFixed(1);
+        const dLabel = new Date(r.date).toLocaleDateString('zh-HK', { month: 'numeric', day: 'numeric' });
+        return `
+          <circle cx="${cx}" cy="${cy}" r="5.5" fill="${r.isDemo ? '#94A3B8' : '#F97316'}" stroke="#fff" stroke-width="2"/>
+          <text x="${cx}" y="${(yPos(r.volumeCv) - 10).toFixed(1)}" text-anchor="middle" font-size="11" font-weight="700" fill="#0F172A">${r.volumeCv.toFixed(1)}%</text>
+          <text x="${cx}" y="${H - 10}" text-anchor="middle" font-size="11" fill="#64748B">${dLabel}</text>
+        `;
+      }).join('');
+
+      wrap.innerHTML = `
+        <svg class="chart-svg" viewBox="0 0 ${W} ${H}" role="img" aria-label="音量變異系數趨勢圖，只顯示有效量度數據">
+          <rect x="${padL}" y="${bandTopY.toFixed(1)}" width="${plotW}" height="${bandH.toFixed(1)}" fill="#D1FAE5" fill-opacity="0.55"/>
+          <text x="${W - padR - 4}" y="${(bandTopY + 14).toFixed(1)}" text-anchor="end" font-size="10.5" font-weight="700" fill="#065F46">穩定區間 ≤ 12%</text>
+          <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H - padB}" stroke="#CBD5E1" stroke-width="1.5"/>
+          <line x1="${padL}" y1="${H - padB}" x2="${W - padR}" y2="${H - padB}" stroke="#CBD5E1" stroke-width="1.5"/>
+          <text x="${padL - 8}" y="${padT + 4}" text-anchor="end" font-size="10" fill="#64748B">${Math.round(maxVal)}%</text>
+          <text x="${padL - 8}" y="${H - padB}" text-anchor="end" font-size="10" fill="#64748B">0%</text>
+          ${measured.length > 1 ? `<polyline fill="none" stroke="#F97316" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${pts}"/>` : ''}
+          ${circles}
+        </svg>`;
+    }
+
+    function renderReportsTable(reports) {
+      const tbody = document.getElementById('reportsTableBody');
+      if (!reports.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-muted); padding:1.25rem;">暫無紀錄</td></tr>';
+        return;
+      }
+      const reversed = [...reports].reverse();
+      tbody.innerHTML = reversed.map(r => {
+        const dt = new Date(r.date).toLocaleString('zh-HK', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        const demoTag = r.isDemo ? ' <span class="badge badge-slate" style="font-size:0.7rem; padding:0.15rem 0.45rem;">示範</span>' : '';
+        const simTag = r.acousticSource === 'sim' ? ' <span class="badge badge-amber" style="font-size:0.68rem; padding:0.1rem 0.4rem;">模擬</span>' : '';
+
+        const mptCell = typeof r.mptSec === 'number'
+          ? `<span style="font-weight:700; color:${r.mptSec >= 10 ? '#059669' : '#0F172A'};">${r.mptSec.toFixed(1)} 秒</span>${simTag}`
+          : `<span style="color:var(--text-muted);">是次未量度</span>`;
+
+        const cvCell = typeof r.volumeCv === 'number'
+          ? `<span style="font-weight:700; color:${r.volumeCv <= 12 ? '#059669' : '#B45309'};">${r.volumeCv.toFixed(1)} %</span>`
+          : `<span style="color:var(--text-muted);">是次未量度</span>`;
+
+        const dbCell = typeof r.meanDb === 'number'
+          ? `${r.meanDb.toFixed(1)} / ${r.peakDb.toFixed(1)} dB`
+          : `<span style="color:var(--text-muted);">是次未量度</span>`;
+
+        return `
+          <tr>
+            <td>${dt}${demoTag}</td>
+            <td>${r.mode === 'gentle' ? '輕量' : '標準'}</td>
+            <td>${mptCell}</td>
+            <td>${cvCell}</td>
+            <td>${dbCell}</td>
+            <td>${r.quizScore}/${r.quizTotal}</td>
+            <td>${r.checkinNote || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // FIX 1: CSV outputs empty fields ("") for unmeasured metrics — zero fake numbers!
+    async function exportReportsCSV() {
+      const reports = await dbGetAll('session_reports');
+      if (!reports.length) {
+        showToast('暫無數據可匯出');
+        return;
+      }
+      const header = ['日期時間', '模式', '時長(分)', '發聲持久度MPT(秒)', '音量變異系數CV(%)', '平均音量(dB)', '峰值音量(dB)', '量度來源', '防哽塞問答', '體感備註', '類型'];
+      const rows = reports.map(r => [
+        new Date(r.date).toLocaleString('zh-HK'),
+        r.mode === 'gentle' ? '輕量護航' : '標準強化',
+        r.durationMin,
+        typeof r.mptSec === 'number' ? r.mptSec : '',
+        typeof r.volumeCv === 'number' ? r.volumeCv : '',
+        typeof r.meanDb === 'number' ? r.meanDb : '',
+        typeof r.peakDb === 'number' ? r.peakDb : '',
+        r.isDemo ? '示範' : (r.acousticSource === 'mic' ? '咪高峰實測' : r.acousticSource === 'sim' ? '模擬測試' : ''),
+        `${r.quizScore}/${r.quizTotal}`,
+        `"${(r.checkinNote || '').replace(/"/g, '""')}"`,
+        r.isDemo ? '示範數據' : '真實訓練'
+      ]);
+      const csv = '\uFEFF' + [header.join(','), ...rows.map(row => row.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `樂活吞嚥聲學報告_${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast('已匯出治療師覆診 CSV（未量度欄位已留空）');
+    }
+
+    function openConfirmClearModal(triggerEl) {
+      openModal('confirmModal', triggerEl);
+    }
+
+    async function confirmClearDemoData() {
+      const reports = await dbGetAll('session_reports');
+      for (const r of reports) {
+        if (r.isDemo) await dbDelete('session_reports', r.id);
+      }
+      closeModal('confirmModal');
+      showToast('已清除所有示範數據，真實紀錄已保留');
+      await openClinicalDashboard();
+    }
+  </script>
+</body>
+</html>
